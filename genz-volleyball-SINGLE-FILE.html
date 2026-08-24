@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gen Z Volleyball Malawi — Train. Play. Rise.</title>
 <meta name="description" content="Gen Z Volleyball Malawi — the home of under-25 volleyball in Malawi. Training, live streams, registration, leaderboard, and more.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%90%3C/text%3E%3C/svg%3E">
 <style>
 /* =========================================================
@@ -178,8 +181,8 @@ tbody tr:hover{background:rgba(255,59,107,.08)}
 .highlight-card{position:relative;aspect-ratio:16/9;background:linear-gradient(135deg,var(--c-card) 0%,var(--c-deep) 100%);border-radius:var(--radius);overflow:hidden;cursor:pointer;border:1px solid rgba(255,255,255,.06);box-shadow:var(--shadow-3d);transition:transform .2s}
 .highlight-card:hover{transform:translateY(-4px) scale(1.02)}
 .highlight-thumb{position:absolute;inset:0;display:grid;place-items:center;font-size:4rem;background:radial-gradient(circle at center,rgba(255,59,107,.2),transparent 60%)}
-.play-btn{width:64px;height:64px;border-radius:50%;background:var(--gradient-1);display:grid;place-items:center;color:var(--c-deep);font-size:1.4rem;box-shadow:0 0 0 6px rgba(255,255,255,.15),var(--shadow-3d);z-index:2;transition:transform .2s}
-.highlight-card:hover .play-btn{transform:scale(1.1)}
+.play-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;background:var(--gradient-1);display:grid;place-items:center;color:var(--c-deep);font-size:1.4rem;box-shadow:0 0 0 6px rgba(255,255,255,.15),var(--shadow-3d);z-index:2;transition:transform .2s}
+.highlight-card:hover .play-btn{transform:translate(-50%,-50%) scale(1.1)}
 .highlight-info{position:absolute;bottom:0;left:0;right:0;padding:1rem;background:linear-gradient(0deg,rgba(0,0,0,.9),transparent)}
 .highlight-info h4{font-size:.95rem}.highlight-meta{font-size:.75rem;color:var(--c-muted)}
 .progress{height:10px;background:var(--c-deeper);border-radius:999px;overflow:hidden;margin:.4rem 0}
