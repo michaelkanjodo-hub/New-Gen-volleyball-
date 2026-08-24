@@ -208,9 +208,9 @@
 
 <footer class="footer"></footer>
 
-<script src="js/app.js"></script>
-<script src="js/supabase-sync.js"></script>
 <script src="js/livestream.js"></script>
+<script src="js/supabase-sync.js"></script>
+<script src="js/app.js"></script>
 <script>
 // ====== TICKER ======
 APP.renderTicker();
@@ -562,6 +562,17 @@ renderHighlights();
 
 // ====== TILT ======
 APP.attachTilt();
+
+// Re-render dynamic sections after storage/sync loads extra data
+window.addEventListener('gzvm:refresh', () => {
+  renderCountdown();
+  renderReel();
+  renderHomeLiveRooms();
+  renderCourtMap();
+  renderLeaderboard();
+  renderHighlights();
+  APP.renderTicker();
+});
 </script>
 </body>
 </html>
