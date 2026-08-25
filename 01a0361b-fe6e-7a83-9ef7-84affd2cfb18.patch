@@ -1,0 +1,3268 @@
+diff --git a/Css b/Css
+index bd307c6..e6c9d7f 100644
+--- a/Css
++++ b/Css
+@@ -931,6 +931,9 @@ tbody tr:hover { background: rgba(255,59,107,0.08); }
+ }
+ .auth-gate .icon { font-size: 4rem; color: var(--c-accent); }
+ 
++/* Never show the old sync-setup banner */
++#sync-banner { display: none !important; }
++
+ /* scrollbar */
+ ::-webkit-scrollbar { width: 10px; height: 10px; }
+ ::-webkit-scrollbar-track { background: var(--c-deeper); }
+diff --git a/GZVM-website-to-upload.zip b/GZVM-website-to-upload.zip
+new file mode 100644
+index 0000000..46b9b73
+Binary files /dev/null and b/GZVM-website-to-upload.zip differ
+diff --git a/Js b/Js
+index e4e25b7..8c67b6f 100644
+--- a/Js
++++ b/Js
+@@ -1100,7 +1100,7 @@ const SYNC = {
+     if (!this.isConfigured()) {
+       console.info('[SYNC] No anon key yet. Running in localStorage-only mode.');
+       // Show a helpful banner telling the user what to do
+-      this.showSetupBanner();
++      /* banner removed */
+       return;
+     }
+     try {
+@@ -1134,7 +1134,7 @@ const SYNC = {
+       window.dispatchEvent(new CustomEvent('gzvm:refresh'));
+     } catch (err) {
+       console.error('[SYNC] Failed to connect:', err);
+-      this.showSetupBanner('Connection failed — check your URL and anon key');
++      /* banner removed */
+     }
+   },
+ 
+diff --git a/README.md b/README.md
+index d74a188..46a7ea6 100644
+--- a/README.md
++++ b/README.md
+@@ -61,7 +61,7 @@ By default, each browser is its own silo. To make team names, profile photos, re
+      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+    }
+    ```
+-5. Refresh the site. You'll see a **green ● SYNC** badge in the navbar.
++5. Refresh the site. Sync runs silently in the background — visitors never see a setup page.
+ 
+ **What syncs in real time:**
+ - Team names + logos
+@@ -102,3 +102,6 @@ Locker password: `locker2026`
+ - **Fonts**: Bebas Neue (display) + Inter (body)
+ - **Responsive**: Mobile-first, works down to 360px
+ - **No build step** — vanilla HTML / CSS / JS only
++- **Watch-link live streams** — Go Live from your camera and share a link; the other person just opens it
++- **Dark / light toggle**, cookie banner, site search, back-to-top, skip-to-content, FAQ, floating contact
++- **Password show/hide**, copy buttons, print stylesheet, form confirmation + success states, UTM capture
+diff --git a/css/extras.css b/css/extras.css
+new file mode 100644
+index 0000000..39afdc6
+--- /dev/null
++++ b/css/extras.css
+@@ -0,0 +1,135 @@
++/* =========================================================
++   Extra UI: theme, cookies, search, a11y, print, widgets
++   ========================================================= */
++
++.skip-link {
++  position: absolute; left: 8px; top: -48px; z-index: 10000;
++  background: var(--c-accent); color: var(--c-deep);
++  padding: 0.5rem 0.9rem; border-radius: 8px; font-weight: 800;
++}
++.skip-link:focus { top: 8px; }
++
++#page-loader {
++  position: fixed; inset: 0; z-index: 9999;
++  background: var(--c-deeper);
++  display: grid; place-items: center;
++  transition: opacity 0.4s, visibility 0.4s;
++}
++#page-loader.done { opacity: 0; visibility: hidden; pointer-events: none; }
++.loader-ball {
++  width: 64px; height: 64px; border-radius: 50%;
++  background: radial-gradient(circle at 30% 30%, #fff 0%, #ffd400 30%, #c89b00 80%);
++  animation: floatBall 1.2s ease-in-out infinite;
++}
++#top-progress {
++  position: fixed; top: 0; left: 0; height: 3px; z-index: 10001;
++  width: 0; background: var(--gradient-1); transition: width 0.3s;
++}
++
++html[data-theme="light"] {
++  --c-deep: #f4f6fb; --c-deeper: #e8edf7; --c-card: #ffffff; --c-card-2: #f0f3fa;
++  --c-text: #121826; --c-muted: #5b6780;
++}
++html[data-theme="light"] body { background: var(--c-deeper); color: var(--c-text); }
++html[data-theme="light"] .nav { background: rgba(255,255,255,0.9); border-bottom-color: rgba(255,59,107,0.35); }
++html[data-theme="light"] .form-control { background: #fff; color: #121826; }
++
++.theme-toggle, .search-toggle {
++  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
++  color: var(--c-text); width: 40px; height: 40px; border-radius: 10px;
++  cursor: pointer; font-size: 1.1rem;
++}
++
++.cookie-banner {
++  position: fixed; bottom: 16px; left: 16px; right: 16px; z-index: 900;
++  max-width: 720px; margin: 0 auto;
++  background: var(--c-card); border: 1px solid rgba(255,255,255,0.12);
++  border-radius: 14px; padding: 1rem 1.2rem;
++  box-shadow: var(--shadow-3d);
++  display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
++}
++.cookie-banner p { flex: 1; min-width: 200px; font-size: 0.9rem; color: var(--c-muted); margin: 0; }
++
++#search-overlay {
++  position: fixed; inset: 0; z-index: 400; display: none;
++  background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
++  padding: 10vh 1rem 1rem;
++}
++#search-overlay.open { display: block; }
++#search-overlay .box {
++  max-width: 640px; margin: 0 auto; background: var(--c-card);
++  border-radius: 16px; padding: 1.2rem; border: 1px solid rgba(255,255,255,0.1);
++}
++#search-results { margin-top: 0.8rem; max-height: 50vh; overflow-y: auto; }
++#search-results a {
++  display: block; padding: 0.7rem 0.8rem; border-radius: 8px; color: var(--c-text);
++}
++#search-results a:hover { background: rgba(255,59,107,0.12); color: var(--c-accent); }
++
++#to-top {
++  position: fixed; bottom: 24px; left: 24px; z-index: 90;
++  width: 48px; height: 48px; border-radius: 50%;
++  background: var(--c-card); color: var(--c-accent); border: 2px solid var(--c-primary);
++  cursor: pointer; font-size: 1.2rem; font-weight: 800;
++  display: none; box-shadow: var(--shadow-3d);
++}
++#to-top.show { display: grid; place-items: center; }
++
++.pw-wrap { position: relative; }
++.pw-wrap input { padding-right: 3rem; }
++.pw-toggle {
++  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
++  background: none; border: none; color: var(--c-muted); cursor: pointer; font-size: 0.85rem;
++}
++
++.copy-btn-inline {
++  margin-left: 0.4rem; background: rgba(255,255,255,0.08); border: none;
++  color: var(--c-accent); border-radius: 6px; padding: 0.15rem 0.45rem; cursor: pointer; font-size: 0.75rem;
++}
++
++.form-success {
++  display: none; text-align: center; padding: 1.5rem;
++}
++.form-success.show { display: block; animation: fadeIn 0.3s; }
++.form-success .icon { font-size: 3rem; }
++
++.faq-list { margin-top: 1rem; }
++.faq-item {
++  background: var(--c-card); border-radius: 12px; margin-bottom: 0.6rem;
++  border: 1px solid rgba(255,255,255,0.06); overflow: hidden;
++}
++.faq-item button {
++  width: 100%; text-align: left; background: none; border: none;
++  color: var(--c-text); padding: 0.9rem 1rem; font-weight: 700; cursor: pointer;
++  font-family: var(--font-body); font-size: 0.95rem;
++}
++.faq-item .faq-body { display: none; padding: 0 1rem 1rem; color: var(--c-muted); font-size: 0.9rem; }
++.faq-item.open .faq-body { display: block; }
++
++.contact-fab {
++  position: fixed; bottom: 96px; right: 24px; z-index: 90;
++  width: 52px; height: 52px; border-radius: 50%;
++  background: var(--gradient-2); border: none; cursor: pointer; font-size: 1.3rem;
++  box-shadow: var(--shadow-3d);
++}
++.contact-panel {
++  position: fixed; bottom: 160px; right: 24px; z-index: 95;
++  width: 320px; max-width: calc(100vw - 32px);
++  background: var(--c-card); border-radius: 16px; padding: 1rem;
++  border: 1px solid rgba(255,255,255,0.1); display: none;
++  box-shadow: var(--shadow-3d);
++}
++.contact-panel.open { display: block; }
++
++.set-progress { height: 8px; background: var(--c-deeper); border-radius: 99px; overflow: hidden; margin-top: 0.4rem; }
++.set-progress > span { display: block; height: 100%; background: var(--gradient-1); width: 0; transition: width 0.2s; }
++
++.updated-stamp { font-size: 0.8rem; color: var(--c-muted); }
++
++@media print {
++  .nav, .ticker, .chat-fab, .live-fab, .contact-fab, #to-top, .cookie-banner,
++  .theme-toggle, .search-toggle, #page-loader, footer, .ball-3d, .scene-3d { display: none !important; }
++  body, html { background: #fff !important; color: #000 !important; }
++  a { color: #000; }
++  .card, .scorepad { box-shadow: none; border: 1px solid #ccc; }
++}
+diff --git a/css/styles.css b/css/styles.css
+new file mode 100644
+index 0000000..27825ab
+--- /dev/null
++++ b/css/styles.css
+@@ -0,0 +1,948 @@
++/* =========================================================
++   Gen Z Volleyball Malawi — Global Styles
++   Sporty + bold + modern + 3D ready
++   ========================================================= */
++
++:root {
++  --c-primary: #ff3b6b;       /* hot pink / court red */
++  --c-primary-dark: #c81f4d;
++  --c-accent: #ffd400;        /* ball yellow */
++  --c-accent-2: #00d4a8;      /* court teal */
++  --c-deep: #0b1426;          /* deep navy */
++  --c-deeper: #050a17;
++  --c-card: #12203b;
++  --c-card-2: #1a2a4a;
++  --c-text: #f5f7fb;
++  --c-muted: #9aa7c2;
++  --c-success: #19d27c;
++  --c-danger: #ff4d4d;
++  --c-warning: #ffa500;
++  --c-info: #4aa3ff;
++  --gradient-1: linear-gradient(135deg, #ff3b6b 0%, #ffd400 100%);
++  --gradient-2: linear-gradient(135deg, #00d4a8 0%, #4aa3ff 100%);
++  --gradient-3: linear-gradient(135deg, #0b1426 0%, #1a2a4a 100%);
++  --shadow-3d: 0 12px 0 0 rgba(0,0,0,0.35), 0 18px 40px rgba(0,0,0,0.4);
++  --shadow-glow: 0 0 30px rgba(255, 59, 107, 0.45);
++  --radius: 14px;
++  --radius-lg: 22px;
++  --font-display: 'Bebas Neue', 'Oswald', Impact, sans-serif;
++  --font-body: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
++}
++
++* { box-sizing: border-box; margin: 0; padding: 0; }
++
++html, body {
++  background: var(--c-deeper);
++  color: var(--c-text);
++  font-family: var(--font-body);
++  line-height: 1.5;
++  overflow-x: hidden;
++  scroll-behavior: smooth;
++  color-scheme: dark;
++}
++
++a { color: var(--c-accent); text-decoration: none; transition: color 0.2s; }
++a:hover { color: var(--c-primary); }
++
++img { max-width: 100%; display: block; }
++
++h1, h2, h3, h4 {
++  font-family: var(--font-display);
++  font-weight: 700;
++  letter-spacing: 0.5px;
++  text-transform: uppercase;
++  line-height: 1.1;
++}
++
++h1 { font-size: clamp(2.4rem, 6vw, 5rem); }
++h2 { font-size: clamp(1.8rem, 4vw, 3rem); margin-bottom: 0.6em; }
++h3 { font-size: clamp(1.2rem, 2.5vw, 1.6rem); margin-bottom: 0.4em; }
++
++/* ============ ANIMATED 3D BG ============ */
++.scene-3d {
++  position: fixed;
++  inset: 0;
++  z-index: -1;
++  background: radial-gradient(ellipse at top, #142a55 0%, var(--c-deeper) 60%);
++  overflow: hidden;
++}
++.scene-3d::before, .scene-3d::after {
++  content: "";
++  position: absolute;
++  border-radius: 50%;
++  filter: blur(60px);
++  opacity: 0.5;
++  animation: floatBlob 18s ease-in-out infinite;
++}
++.scene-3d::before {
++  width: 480px; height: 480px;
++  background: var(--c-primary);
++  top: -120px; left: -120px;
++}
++.scene-3d::after {
++  width: 520px; height: 520px;
++  background: var(--c-accent-2);
++  bottom: -160px; right: -120px;
++  animation-delay: -9s;
++}
++@keyframes floatBlob {
++  0%, 100% { transform: translate(0, 0) scale(1); }
++  33% { transform: translate(80px, -40px) scale(1.1); }
++  66% { transform: translate(-60px, 60px) scale(0.95); }
++}
++
++/* floating ball */
++.ball-3d {
++  position: fixed;
++  width: 80px; height: 80px;
++  border-radius: 50%;
++  background:
++    radial-gradient(circle at 30% 30%, #fff 0%, #ffd400 30%, #c89b00 80%);
++  box-shadow: inset -10px -10px 20px rgba(0,0,0,0.4), 0 12px 30px rgba(0,0,0,0.5);
++  z-index: 1;
++  pointer-events: none;
++  animation: floatBall 12s ease-in-out infinite;
++  top: 30%;
++  right: 8%;
++  opacity: 0.85;
++}
++.ball-3d::before {
++  content: "";
++  position: absolute;
++  inset: 8px;
++  border-radius: 50%;
++  background:
++    conic-gradient(from 0deg,
++      transparent 0 60deg, #c81f4d 60deg 90deg, transparent 90deg 240deg,
++      #c81f4d 240deg 270deg, transparent 270deg);
++  mask: radial-gradient(circle, transparent 30%, #000 32%, #000 60%, transparent 62%);
++  -webkit-mask: radial-gradient(circle, transparent 30%, #000 32%, #000 60%, transparent 62%);
++  opacity: 0.85;
++}
++@keyframes floatBall {
++  0%, 100% { transform: translateY(0) rotate(0deg); }
++  50% { transform: translateY(-40px) rotate(180deg); }
++}
++
++/* ============ LAYOUT ============ */
++.container {
++  width: min(1240px, 92%);
++  margin: 0 auto;
++}
++.row { display: flex; flex-wrap: wrap; gap: 1.5rem; }
++.col { flex: 1 1 280px; }
++.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
++.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
++.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
++
++main { padding: 2rem 0 5rem; min-height: 70vh; position: relative; z-index: 2; }
++
++section { margin: 3rem 0; }
++.section-title {
++  display: flex; align-items: center; gap: 0.8rem;
++  margin-bottom: 1.5rem;
++}
++.section-title .badge {
++  background: var(--gradient-1);
++  color: var(--c-deep);
++  padding: 0.2rem 0.7rem;
++  border-radius: 999px;
++  font-size: 0.7rem;
++  font-weight: 800;
++  letter-spacing: 1px;
++  box-shadow: var(--shadow-3d);
++}
++.section-title h2 { margin: 0; }
++
++/* ============ NAVBAR ============ */
++.nav {
++  position: sticky; top: 0; z-index: 100;
++  background: rgba(11, 20, 38, 0.85);
++  backdrop-filter: blur(14px);
++  -webkit-backdrop-filter: blur(14px);
++  border-bottom: 2px solid rgba(255, 59, 107, 0.3);
++}
++.nav-inner {
++  display: flex; align-items: center; justify-content: space-between;
++  padding: 0.8rem 0;
++}
++.brand {
++  display: flex; align-items: center; gap: 0.7rem;
++  font-family: var(--font-display);
++  font-size: 1.5rem;
++  color: var(--c-text);
++  letter-spacing: 1px;
++}
++.brand:hover { color: var(--c-text); }
++.brand .logo {
++  width: 42px; height: 42px;
++  border-radius: 50%;
++  background: var(--gradient-1);
++  display: grid; place-items: center;
++  font-size: 1.4rem;
++  box-shadow: var(--shadow-3d), var(--shadow-glow);
++  transform: rotateZ(-8deg);
++  transition: transform 0.3s;
++}
++.brand:hover .logo { transform: rotateZ(8deg) scale(1.05); }
++.brand small {
++  display: block; font-size: 0.6rem; color: var(--c-muted);
++  letter-spacing: 3px; font-family: var(--font-body);
++}
++.nav-links {
++  display: flex; gap: 0.4rem; align-items: center;
++  list-style: none;
++}
++.nav-links a {
++  color: var(--c-text);
++  padding: 0.5rem 0.9rem;
++  border-radius: 8px;
++  font-weight: 600;
++  font-size: 0.95rem;
++  transition: all 0.2s;
++  position: relative;
++}
++.nav-links a:hover, .nav-links a.active {
++  background: rgba(255, 59, 107, 0.15);
++  color: var(--c-accent);
++}
++.nav-toggle {
++  display: none;
++  background: none; border: none;
++  color: var(--c-text);
++  font-size: 1.6rem;
++  cursor: pointer;
++}
++@media (max-width: 880px) {
++  .nav-links {
++    position: absolute; top: 100%; left: 0; right: 0;
++    background: var(--c-deep);
++    flex-direction: column;
++    padding: 1rem;
++    transform: translateY(-200%);
++    transition: transform 0.3s;
++    border-bottom: 2px solid var(--c-primary);
++  }
++  .nav-links.open { transform: translateY(0); }
++  .nav-toggle { display: block; }
++}
++
++/* ============ BUTTONS ============ */
++.btn {
++  display: inline-flex; align-items: center; gap: 0.5rem;
++  padding: 0.8rem 1.4rem;
++  border-radius: 10px;
++  font-weight: 700;
++  font-size: 0.95rem;
++  border: none; cursor: pointer;
++  transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
++  font-family: var(--font-body);
++  text-transform: uppercase;
++  letter-spacing: 0.5px;
++  text-decoration: none;
++}
++.btn:active { transform: translateY(2px); }
++.btn-primary {
++  background: var(--gradient-1);
++  color: var(--c-deep);
++  box-shadow: var(--shadow-3d);
++}
++.btn-primary:hover { box-shadow: var(--shadow-3d), var(--shadow-glow); transform: translateY(-2px); color: var(--c-deep); }
++.btn-accent {
++  background: var(--gradient-2);
++  color: var(--c-deep);
++  box-shadow: var(--shadow-3d);
++}
++.btn-accent:hover { transform: translateY(-2px); color: var(--c-deep); }
++.btn-ghost {
++  background: transparent;
++  color: var(--c-text);
++  border: 2px solid rgba(255,255,255,0.2);
++}
++.btn-ghost:hover { border-color: var(--c-accent); color: var(--c-accent); }
++.btn-sm { padding: 0.5rem 0.9rem; font-size: 0.85rem; }
++.btn-block { width: 100%; justify-content: center; }
++
++/* ============ CARDS ============ */
++.card {
++  background: linear-gradient(180deg, var(--c-card) 0%, var(--c-card-2) 100%);
++  border-radius: var(--radius);
++  padding: 1.4rem;
++  border: 1px solid rgba(255,255,255,0.06);
++  box-shadow: var(--shadow-3d);
++  position: relative;
++  transition: transform 0.25s, box-shadow 0.25s;
++}
++.card:hover { transform: translateY(-4px); box-shadow: 0 16px 0 0 rgba(0,0,0,0.35), 0 22px 50px rgba(255,59,107,0.2); }
++.card-3d {
++  transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
++  transition: transform 0.1s;
++}
++.card-glass {
++  background: rgba(18, 32, 59, 0.6);
++  backdrop-filter: blur(10px);
++  -webkit-backdrop-filter: blur(10px);
++}
++
++/* ============ FORMS ============ */
++.form-group { margin-bottom: 1rem; }
++.form-group label {
++  display: block; margin-bottom: 0.4rem;
++  font-weight: 600; font-size: 0.9rem;
++  color: var(--c-muted);
++  letter-spacing: 0.3px;
++}
++.form-control {
++  width: 100%;
++  padding: 0.75rem 0.9rem;
++  background: var(--c-deeper);
++  color: var(--c-text);
++  border: 2px solid rgba(255,255,255,0.1);
++  border-radius: 10px;
++  font-size: 0.95rem;
++  font-family: var(--font-body);
++  transition: border-color 0.2s, box-shadow 0.2s;
++}
++.form-control:focus {
++  outline: none;
++  border-color: var(--c-primary);
++  box-shadow: 0 0 0 3px rgba(255, 59, 107, 0.2);
++}
++.form-control::placeholder { color: var(--c-muted); }
++textarea.form-control { min-height: 100px; resize: vertical; }
++select.form-control { cursor: pointer; }
++.file-drop {
++  border: 2px dashed rgba(255,255,255,0.2);
++  padding: 1.5rem; text-align: center;
++  border-radius: 12px; cursor: pointer;
++  transition: all 0.2s;
++  color: var(--c-muted);
++}
++.file-drop:hover, .file-drop.drag {
++  border-color: var(--c-accent);
++  color: var(--c-accent);
++  background: rgba(255, 212, 0, 0.05);
++}
++.file-drop input { display: none; }
++.checkbox-row {
++  display: flex; align-items: flex-start; gap: 0.6rem;
++  font-size: 0.9rem; color: var(--c-muted);
++}
++.checkbox-row input { margin-top: 0.25rem; }
++
++/* ============ TAGS / BADGES ============ */
++.tag {
++  display: inline-block;
++  padding: 0.2rem 0.6rem;
++  border-radius: 999px;
++  font-size: 0.72rem;
++  font-weight: 700;
++  letter-spacing: 0.5px;
++  text-transform: uppercase;
++}
++.tag-pink { background: rgba(255,59,107,0.2); color: var(--c-primary); }
++.tag-teal { background: rgba(0,212,168,0.2); color: var(--c-accent-2); }
++.tag-yellow { background: rgba(255,212,0,0.2); color: var(--c-accent); }
++.tag-blue { background: rgba(74,163,255,0.2); color: var(--c-info); }
++
++/* ============ MODAL ============ */
++.modal-backdrop {
++  position: fixed; inset: 0;
++  background: rgba(0,0,0,0.7);
++  backdrop-filter: blur(6px);
++  display: none;
++  align-items: center; justify-content: center;
++  z-index: 200;
++  padding: 1rem;
++  animation: fadeIn 0.2s;
++}
++.modal-backdrop.open { display: flex; }
++.modal {
++  background: var(--c-card);
++  border-radius: var(--radius-lg);
++  max-width: 520px; width: 100%;
++  padding: 2rem;
++  box-shadow: 0 30px 60px rgba(0,0,0,0.5);
++  border: 1px solid rgba(255,255,255,0.1);
++  max-height: 90vh; overflow-y: auto;
++  animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
++}
++@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
++@keyframes pop {
++  from { transform: scale(0.8); opacity: 0; }
++  to { transform: scale(1); opacity: 1; }
++}
++.modal-header {
++  display: flex; justify-content: space-between; align-items: center;
++  margin-bottom: 1rem;
++}
++.modal-close {
++  background: none; border: none;
++  color: var(--c-muted);
++  font-size: 1.5rem; cursor: pointer;
++}
++.modal-close:hover { color: var(--c-primary); }
++
++/* ============ TOAST ============ */
++.toast-stack {
++  position: fixed; top: 80px; right: 20px;
++  z-index: 300; display: flex; flex-direction: column; gap: 0.5rem;
++}
++.toast {
++  background: var(--c-card);
++  color: var(--c-text);
++  padding: 0.9rem 1.2rem;
++  border-radius: 10px;
++  border-left: 4px solid var(--c-primary);
++  box-shadow: var(--shadow-3d);
++  animation: slideIn 0.3s;
++  max-width: 320px;
++}
++.toast.success { border-color: var(--c-success); }
++.toast.error { border-color: var(--c-danger); }
++.toast.info { border-color: var(--c-info); }
++@keyframes slideIn {
++  from { transform: translateX(120%); opacity: 0; }
++  to { transform: translateX(0); opacity: 1; }
++}
++
++/* ============ FOOTER ============ */
++.footer {
++  background: var(--c-deep);
++  border-top: 1px solid rgba(255,255,255,0.06);
++  padding: 2.5rem 0 1.5rem;
++  margin-top: 3rem;
++  position: relative; z-index: 2;
++}
++.footer-grid {
++  display: grid;
++  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
++  gap: 2rem;
++  margin-bottom: 1.5rem;
++}
++.footer h4 {
++  font-size: 1rem;
++  color: var(--c-accent);
++  margin-bottom: 0.7rem;
++}
++.footer ul { list-style: none; }
++.footer li { margin-bottom: 0.4rem; font-size: 0.9rem; }
++.footer a { color: var(--c-muted); }
++.footer a:hover { color: var(--c-accent); }
++.footer-bottom {
++  text-align: center;
++  color: var(--c-muted);
++  font-size: 0.85rem;
++  padding-top: 1.5rem;
++  border-top: 1px solid rgba(255,255,255,0.05);
++}
++
++/* ============ UTILITIES ============ */
++.text-center { text-align: center; }
++.muted { color: var(--c-muted); }
++.gradient-text {
++  background: var(--gradient-1);
++  -webkit-background-clip: text;
++  background-clip: text;
++  -webkit-text-fill-color: transparent;
++  color: transparent;
++}
++.divider {
++  height: 2px;
++  background: var(--gradient-1);
++  margin: 1.5rem 0;
++  border-radius: 2px;
++}
++.tilt-on-hover { transition: transform 0.2s; }
++.tilt-on-hover:hover { transform: perspective(600px) rotateX(2deg) rotateY(-2deg) scale(1.02); }
++
++/* ============ CHAT ============ */
++.chat-fab {
++  position: fixed; bottom: 24px; right: 24px;
++  width: 60px; height: 60px;
++  border-radius: 50%;
++  background: var(--gradient-1);
++  color: var(--c-deep);
++  border: none;
++  font-size: 1.6rem;
++  cursor: pointer;
++  box-shadow: var(--shadow-3d), var(--shadow-glow);
++  z-index: 90;
++  transition: transform 0.2s;
++}
++.chat-fab:hover { transform: scale(1.1) rotate(8deg); }
++.chat-panel {
++  position: fixed; bottom: 100px; right: 24px;
++  width: 340px; max-width: calc(100vw - 32px);
++  height: 480px; max-height: 70vh;
++  background: var(--c-card);
++  border-radius: var(--radius-lg);
++  border: 1px solid rgba(255,255,255,0.1);
++  box-shadow: var(--shadow-3d);
++  display: none; flex-direction: column;
++  z-index: 95;
++  overflow: hidden;
++  animation: pop 0.3s;
++}
++.chat-panel.open { display: flex; }
++.chat-header {
++  background: var(--gradient-1);
++  color: var(--c-deep);
++  padding: 0.9rem 1rem;
++  font-weight: 800;
++  display: flex; justify-content: space-between; align-items: center;
++}
++.chat-header button { background: none; border: none; color: var(--c-deep); cursor: pointer; font-size: 1.2rem; }
++.chat-body {
++  flex: 1; overflow-y: auto;
++  padding: 0.8rem;
++  display: flex; flex-direction: column; gap: 0.5rem;
++  background: var(--c-deeper);
++}
++.chat-msg {
++  padding: 0.5rem 0.8rem;
++  border-radius: 10px;
++  background: var(--c-card-2);
++  max-width: 80%;
++  font-size: 0.9rem;
++  word-wrap: break-word;
++  animation: slideIn 0.2s;
++}
++.chat-msg .who { font-size: 0.7rem; color: var(--c-accent); font-weight: 700; }
++.chat-msg.me { align-self: flex-end; background: var(--c-primary); color: white; }
++.chat-msg.me .who { color: rgba(255,255,255,0.8); }
++.chat-input {
++  display: flex; gap: 0.4rem;
++  padding: 0.6rem;
++  background: var(--c-card);
++  border-top: 1px solid rgba(255,255,255,0.05);
++}
++.chat-input input {
++  flex: 1; background: var(--c-deeper);
++  color: var(--c-text);
++  border: 1px solid rgba(255,255,255,0.1);
++  padding: 0.5rem 0.7rem;
++  border-radius: 8px;
++  font-size: 0.9rem;
++}
++.chat-input button {
++  background: var(--gradient-1);
++  color: var(--c-deep);
++  border: none;
++  padding: 0.5rem 0.9rem;
++  border-radius: 8px;
++  font-weight: 700;
++  cursor: pointer;
++}
++
++/* ============ TICKER ============ */
++.ticker {
++  background: var(--c-deep);
++  border-top: 2px solid var(--c-primary);
++  border-bottom: 2px solid var(--c-primary);
++  padding: 0.6rem 0;
++  overflow: hidden;
++  white-space: nowrap;
++  position: relative;
++}
++.ticker::before, .ticker::after {
++  content: ""; position: absolute; top: 0; bottom: 0; width: 80px; z-index: 2; pointer-events: none;
++}
++.ticker::before { left: 0; background: linear-gradient(90deg, var(--c-deep), transparent); }
++.ticker::after { right: 0; background: linear-gradient(-90deg, var(--c-deep), transparent); }
++.ticker-track {
++  display: inline-block;
++  animation: ticker 40s linear infinite;
++  font-weight: 600;
++  font-size: 0.9rem;
++}
++.ticker-track span { margin: 0 1.5rem; }
++.ticker-track .win { color: var(--c-success); }
++.ticker-track .loss { color: var(--c-danger); }
++.ticker-track .draw { color: var(--c-warning); }
++@keyframes ticker {
++  0% { transform: translateX(0); }
++  100% { transform: translateX(-50%); }
++}
++
++/* ============ HERO ============ */
++.hero {
++  position: relative;
++  padding: 4rem 0 3rem;
++  text-align: center;
++  overflow: hidden;
++}
++.hero h1 { margin-bottom: 1rem; }
++.hero p {
++  font-size: 1.15rem; color: var(--c-muted);
++  max-width: 640px; margin: 0 auto 1.5rem;
++}
++.hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
++
++/* ============ COUNTDOWN ============ */
++.countdown {
++  display: flex; gap: 0.8rem; justify-content: center;
++  flex-wrap: wrap;
++  margin: 1.5rem 0;
++}
++.countdown-unit {
++  background: var(--c-card);
++  border-radius: var(--radius);
++  padding: 0.8rem 1.2rem;
++  min-width: 90px;
++  text-align: center;
++  box-shadow: var(--shadow-3d);
++  border: 1px solid rgba(255,59,107,0.2);
++  transition: transform 0.2s;
++}
++.countdown-unit:hover { transform: translateY(-4px) rotateZ(-2deg); }
++.countdown-unit .num {
++  font-family: var(--font-display);
++  font-size: 2.4rem;
++  color: var(--c-accent);
++  display: block;
++  line-height: 1;
++}
++.countdown-unit .lbl {
++  font-size: 0.7rem;
++  color: var(--c-muted);
++  text-transform: uppercase;
++  letter-spacing: 1.5px;
++}
++
++/* ============ SCORE PAD ============ */
++.scorepad {
++  background: var(--c-card);
++  border-radius: var(--radius-lg);
++  padding: 1.5rem;
++  box-shadow: var(--shadow-3d);
++  border: 2px solid var(--c-primary);
++}
++.scorepad-header {
++  display: flex; justify-content: space-between; align-items: center;
++  margin-bottom: 1rem; padding-bottom: 0.8rem;
++  border-bottom: 1px solid rgba(255,255,255,0.1);
++}
++.scorepad-teams {
++  display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem;
++  align-items: center;
++}
++.scorepad-team { text-align: center; }
++.scorepad-team h4 {
++  font-size: 1.1rem; margin-bottom: 0.3rem;
++  color: var(--c-text);
++}
++.scorepad-team .name { font-family: var(--font-body); font-weight: 700; text-transform: none; }
++.scorepad-score {
++  font-family: var(--font-display);
++  font-size: 4rem; line-height: 1;
++  color: var(--c-accent);
++  margin: 0.5rem 0;
++  display: flex; align-items: center; gap: 0.4rem; justify-content: center;
++}
++.scorepad-score button {
++  background: rgba(255,255,255,0.08);
++  color: var(--c-text);
++  border: none;
++  width: 32px; height: 32px;
++  border-radius: 8px;
++  font-size: 1.2rem; font-weight: 700;
++  cursor: pointer;
++}
++.scorepad-score button:hover { background: var(--c-primary); color: white; }
++.scorepad-vs { font-family: var(--font-display); color: var(--c-muted); font-size: 1.5rem; }
++.scorepad-sets {
++  display: flex; gap: 0.5rem; justify-content: center;
++  margin-top: 0.8rem;
++}
++.set-pill {
++  background: var(--c-deeper);
++  color: var(--c-text);
++  padding: 0.3rem 0.7rem;
++  border-radius: 6px;
++  font-weight: 700;
++  font-size: 0.85rem;
++  border: 1px solid rgba(255,255,255,0.1);
++}
++.scorepad-actions {
++  display: flex; gap: 0.5rem; justify-content: center;
++  margin-top: 1rem; flex-wrap: wrap;
++}
++
++/* ============ TABLE ============ */
++.table-wrap { overflow-x: auto; border-radius: var(--radius); }
++table {
++  width: 100%;
++  border-collapse: collapse;
++  font-size: 0.92rem;
++}
++th, td { padding: 0.8rem 1rem; text-align: left; }
++thead th {
++  background: var(--c-card);
++  color: var(--c-accent);
++  font-family: var(--font-display);
++  text-transform: uppercase;
++  letter-spacing: 1px;
++  font-size: 0.85rem;
++  border-bottom: 2px solid var(--c-primary);
++}
++tbody tr {
++  background: var(--c-card-2);
++  border-bottom: 1px solid rgba(255,255,255,0.04);
++  transition: background 0.2s;
++}
++tbody tr:hover { background: rgba(255,59,107,0.08); }
++.rank-badge {
++  display: inline-block;
++  width: 28px; height: 28px;
++  text-align: center; line-height: 28px;
++  border-radius: 50%;
++  font-weight: 800;
++  font-size: 0.85rem;
++}
++.rank-1 { background: var(--c-accent); color: var(--c-deep); }
++.rank-2 { background: #c0c0c0; color: var(--c-deep); }
++.rank-3 { background: #cd7f32; color: var(--c-deep); }
++.rank-n { background: rgba(255,255,255,0.1); color: var(--c-text); }
++
++/* ============ COURT MAP ============ */
++.court-map {
++  position: relative;
++  width: 100%;
++  aspect-ratio: 16/9;
++  background:
++    radial-gradient(circle at 50% 50%, #1a4a2a 0%, #0d2e1a 100%);
++  border-radius: var(--radius);
++  overflow: hidden;
++  border: 2px solid var(--c-accent);
++  box-shadow: var(--shadow-3d);
++}
++.court-lines {
++  position: absolute; inset: 8%;
++  border: 3px solid rgba(255,255,255,0.6);
++  pointer-events: none;
++}
++.court-lines::before, .court-lines::after {
++  content: ""; position: absolute;
++  background: rgba(255,255,255,0.4);
++}
++.court-lines::before { top: 0; left: 50%; width: 3px; height: 100%; transform: translateX(-50%); }
++.court-lines::after { top: 50%; left: 0; width: 100%; height: 3px; transform: translateY(-50%); }
++.net {
++  position: absolute; top: 8%; left: 50%; transform: translateX(-50%);
++  width: 6px; height: 84%;
++  background: linear-gradient(180deg, var(--c-muted), #555);
++  box-shadow: 0 0 10px rgba(255,255,255,0.3);
++}
++.map-pin {
++  position: absolute;
++  width: 32px; height: 32px;
++  border-radius: 50% 50% 50% 0;
++  transform: rotate(-45deg) translate(-50%, -50%);
++  background: var(--c-primary);
++  border: 2px solid white;
++  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
++  cursor: pointer;
++  display: grid; place-items: center;
++  color: white; font-weight: 800;
++  transition: transform 0.2s;
++  animation: pinBounce 2s ease-in-out infinite;
++}
++.map-pin span { transform: rotate(45deg); font-size: 0.8rem; }
++.map-pin:hover { transform: rotate(-45deg) translate(-50%, -50%) scale(1.2); z-index: 5; }
++.map-pin.pin-2 { background: var(--c-accent); }
++.map-pin.pin-3 { background: var(--c-accent-2); }
++.map-pin.pin-4 { background: var(--c-info); }
++@keyframes pinBounce {
++  0%, 100% { transform: rotate(-45deg) translate(-50%, -50%) translateY(0); }
++  50% { transform: rotate(-45deg) translate(-50%, -50%) translateY(-6px); }
++}
++.map-legend {
++  position: absolute; top: 10px; right: 10px;
++  background: rgba(0,0,0,0.6);
++  padding: 0.5rem 0.7rem;
++  border-radius: 8px;
++  font-size: 0.75rem;
++  z-index: 4;
++}
++.map-legend div { display: flex; align-items: center; gap: 0.4rem; margin: 0.15rem 0; }
++.map-legend .dot { width: 10px; height: 10px; border-radius: 50%; }
++
++/* ============ HIGHLIGHT CARD ============ */
++.highlight-card {
++  position: relative;
++  aspect-ratio: 16/9;
++  background: linear-gradient(135deg, var(--c-card) 0%, var(--c-deep) 100%);
++  border-radius: var(--radius);
++  overflow: hidden;
++  cursor: pointer;
++  border: 1px solid rgba(255,255,255,0.06);
++  box-shadow: var(--shadow-3d);
++  transition: transform 0.2s;
++}
++.highlight-card:hover { transform: translateY(-4px) scale(1.02); }
++.highlight-thumb {
++  position: absolute; inset: 0;
++  display: grid; place-items: center;
++  font-size: 4rem;
++  background: radial-gradient(circle at center, rgba(255,59,107,0.2), transparent 60%);
++}
++.play-btn {
++  position: absolute;
++  top: 50%; left: 50%;
++  transform: translate(-50%, -50%);
++  width: 64px; height: 64px;
++  border-radius: 50%;
++  background: var(--gradient-1);
++  display: grid; place-items: center;
++  color: var(--c-deep);
++  font-size: 1.4rem;
++  box-shadow: 0 0 0 6px rgba(255,255,255,0.15), var(--shadow-3d);
++  z-index: 2;
++  transition: transform 0.2s;
++}
++.highlight-card:hover .play-btn { transform: translate(-50%, -50%) scale(1.1); }
++.highlight-info {
++  position: absolute; bottom: 0; left: 0; right: 0;
++  padding: 1rem;
++  background: linear-gradient(0deg, rgba(0,0,0,0.9), transparent);
++}
++.highlight-info h4 { font-size: 0.95rem; }
++.highlight-meta { font-size: 0.75rem; color: var(--c-muted); }
++
++/* ============ PROGRESS BAR ============ */
++.progress {
++  height: 10px;
++  background: var(--c-deeper);
++  border-radius: 999px;
++  overflow: hidden;
++  margin: 0.4rem 0;
++}
++.progress-bar {
++  height: 100%;
++  background: var(--gradient-1);
++  border-radius: 999px;
++  transition: width 0.5s;
++}
++.progress-bar.teal { background: var(--gradient-2); }
++.progress-bar.yellow { background: var(--c-accent); }
++.progress-label {
++  display: flex; justify-content: space-between;
++  font-size: 0.85rem;
++  margin-top: 0.2rem;
++  color: var(--c-muted);
++}
++
++/* ============ LIVE STREAM ============ */
++.live-stream {
++  position: relative;
++  aspect-ratio: 16/9;
++  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
++  border-radius: var(--radius);
++  overflow: hidden;
++  box-shadow: var(--shadow-3d);
++  border: 2px solid var(--c-primary);
++}
++.live-badge {
++  position: absolute; top: 12px; left: 12px;
++  background: var(--c-danger);
++  color: white;
++  padding: 0.3rem 0.7rem;
++  border-radius: 4px;
++  font-size: 0.75rem;
++  font-weight: 800;
++  z-index: 3;
++  display: flex; align-items: center; gap: 0.4rem;
++  letter-spacing: 1px;
++}
++.live-dot {
++  width: 8px; height: 8px;
++  background: white;
++  border-radius: 50%;
++  animation: pulse 1.5s infinite;
++}
++@keyframes pulse {
++  0%, 100% { opacity: 1; }
++  50% { opacity: 0.3; }
++}
++.stream-content {
++  position: absolute; inset: 0;
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  justify-content: center;
++  text-align: center;
++  color: var(--c-muted);
++  background: radial-gradient(circle at center, rgba(255,59,107,0.1), transparent);
++  padding: 1rem;
++}
++.stream-content .icon {
++  font-size: 5rem;
++  color: var(--c-primary);
++  margin-bottom: 1rem;
++  animation: floatBall 4s ease-in-out infinite;
++}
++.stream-overlay {
++  position: absolute; bottom: 12px; left: 12px; right: 12px;
++  display: flex; justify-content: space-between; align-items: center;
++  background: rgba(0,0,0,0.6);
++  padding: 0.5rem 0.8rem;
++  border-radius: 8px;
++  font-size: 0.85rem;
++  z-index: 3;
++}
++.viewer-count { display: flex; align-items: center; gap: 0.4rem; color: var(--c-accent); }
++
++/* ============ ALERTS ============ */
++.alert {
++  padding: 0.9rem 1.1rem;
++  border-radius: 10px;
++  margin-bottom: 1rem;
++  font-size: 0.9rem;
++  border-left: 4px solid;
++}
++.alert-info { background: rgba(74,163,255,0.1); border-color: var(--c-info); color: var(--c-info); }
++.alert-warning { background: rgba(255,165,0,0.1); border-color: var(--c-warning); color: var(--c-warning); }
++.alert-success { background: rgba(25,210,124,0.1); border-color: var(--c-success); color: var(--c-success); }
++.alert-danger { background: rgba(255,77,77,0.1); border-color: var(--c-danger); color: var(--c-danger); }
++
++/* ============ TABS ============ */
++.tabs {
++  display: flex; gap: 0.4rem; flex-wrap: wrap;
++  border-bottom: 2px solid rgba(255,255,255,0.1);
++  margin-bottom: 1.5rem;
++}
++.tab {
++  padding: 0.6rem 1.1rem;
++  background: none; border: none;
++  color: var(--c-muted);
++  font-weight: 700;
++  cursor: pointer;
++  border-bottom: 3px solid transparent;
++  margin-bottom: -2px;
++  font-family: var(--font-body);
++  text-transform: uppercase;
++  letter-spacing: 0.5px;
++  font-size: 0.9rem;
++  transition: all 0.2s;
++}
++.tab.active { color: var(--c-accent); border-color: var(--c-primary); }
++.tab:hover { color: var(--c-text); }
++.tab-content { display: none; }
++.tab-content.active { display: block; animation: fadeIn 0.3s; }
++
++/* ============ AUTH GATE ============ */
++.auth-gate {
++  max-width: 420px; margin: 4rem auto;
++  text-align: center; padding: 2rem;
++}
++.auth-gate .icon { font-size: 4rem; color: var(--c-accent); }
++
++/* Never show the old sync-setup banner */
++#sync-banner { display: none !important; }
++
++/* scrollbar */
++::-webkit-scrollbar { width: 10px; height: 10px; }
++::-webkit-scrollbar-track { background: var(--c-deeper); }
++::-webkit-scrollbar-thumb { background: var(--c-card-2); border-radius: 5px; }
++::-webkit-scrollbar-thumb:hover { background: var(--c-primary); }
+diff --git a/donate.html b/donate.html
+index 8aa3ec4..77b4e23 100644
+--- a/donate.html
++++ b/donate.html
+@@ -8,6 +8,7 @@
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="css/styles.css">
++<style>#sync-banner{display:none!important}</style>
+ <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%90%3C/text%3E%3C/svg%3E">
+ </head>
+ <body>
+@@ -120,9 +121,9 @@
+ 
+ <footer class="footer"></footer>
+ 
+-<script src="js/app.js"></script>
+-<script src="js/supabase-sync.js"></script>
+ <script src="js/livestream.js"></script>
++<script src="js/supabase-sync.js"></script>
++<script src="js/app.js"></script>
+ <script>
+ APP.renderTicker();
+ APP.attachTilt();
+@@ -136,8 +137,9 @@ document.querySelectorAll('.amount-preset').forEach(b => {
+   });
+ });
+ 
+-document.getElementById('donate-form').addEventListener('submit', e => {
++document.getElementById('donate-form').addEventListener('submit', async e => {
+   e.preventDefault();
++  if (window.EXTRAS && !(await EXTRAS.confirm('Send this donation?'))) return;
+   const fd = new FormData(e.target);
+   const amt = parseInt(fd.get('amount'));
+   if (!amt || amt < 100) return APP.toast('Minimum donation is MK 100', 'error');
+@@ -153,6 +155,7 @@ document.getElementById('donate-form').addEventListener('submit', e => {
+   APP.data.donations.push(donation);
+   APP.save();
+   APP.toast(`Thank you for donating MK ${amt.toLocaleString()}! 🎉`, 'success');
++  if (window.EXTRAS) EXTRAS.showSuccess(e.target, 'Donation received', `Thank you for MK ${amt.toLocaleString()}.`);
+   e.target.reset();
+   document.querySelectorAll('.amount-preset').forEach(x => { x.classList.remove('btn-primary'); x.classList.add('btn-ghost'); });
+   renderDonations();
+diff --git a/genz-volleyball-SINGLE-FILE.html b/genz-volleyball-SINGLE-FILE.html
+index c80bfc7..70d3911 100644
+--- a/genz-volleyball-SINGLE-FILE.html
++++ b/genz-volleyball-SINGLE-FILE.html
+@@ -5,6 +5,9 @@
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Gen Z Volleyball Malawi — Train. Play. Rise.</title>
+ <meta name="description" content="Gen Z Volleyball Malawi — the home of under-25 volleyball in Malawi. Training, live streams, registration, leaderboard, and more.">
++<link rel="preconnect" href="https://fonts.googleapis.com">
++<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
++<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+ <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%90%3C/text%3E%3C/svg%3E">
+ <style>
+ /* =========================================================
+@@ -178,8 +181,8 @@ tbody tr:hover{background:rgba(255,59,107,.08)}
+ .highlight-card{position:relative;aspect-ratio:16/9;background:linear-gradient(135deg,var(--c-card) 0%,var(--c-deep) 100%);border-radius:var(--radius);overflow:hidden;cursor:pointer;border:1px solid rgba(255,255,255,.06);box-shadow:var(--shadow-3d);transition:transform .2s}
+ .highlight-card:hover{transform:translateY(-4px) scale(1.02)}
+ .highlight-thumb{position:absolute;inset:0;display:grid;place-items:center;font-size:4rem;background:radial-gradient(circle at center,rgba(255,59,107,.2),transparent 60%)}
+-.play-btn{width:64px;height:64px;border-radius:50%;background:var(--gradient-1);display:grid;place-items:center;color:var(--c-deep);font-size:1.4rem;box-shadow:0 0 0 6px rgba(255,255,255,.15),var(--shadow-3d);z-index:2;transition:transform .2s}
+-.highlight-card:hover .play-btn{transform:scale(1.1)}
++.play-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;background:var(--gradient-1);display:grid;place-items:center;color:var(--c-deep);font-size:1.4rem;box-shadow:0 0 0 6px rgba(255,255,255,.15),var(--shadow-3d);z-index:2;transition:transform .2s}
++.highlight-card:hover .play-btn{transform:translate(-50%,-50%) scale(1.1)}
+ .highlight-info{position:absolute;bottom:0;left:0;right:0;padding:1rem;background:linear-gradient(0deg,rgba(0,0,0,.9),transparent)}
+ .highlight-info h4{font-size:.95rem}.highlight-meta{font-size:.75rem;color:var(--c-muted)}
+ .progress{height:10px;background:var(--c-deeper);border-radius:999px;overflow:hidden;margin:.4rem 0}
+@@ -204,6 +207,7 @@ tbody tr:hover{background:rgba(255,59,107,.08)}
+ .tab.active{color:var(--c-accent);border-color:var(--c-primary)}.tab:hover{color:var(--c-text)}
+ .tab-content{display:none}.tab-content.active{display:block;animation:fadeIn .3s}
+ .auth-gate{max-width:420px;margin:4rem auto;text-align:center;padding:2rem}.auth-gate .icon{font-size:4rem;color:var(--c-accent)}
++#sync-banner{display:none!important}
+ ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:var(--c-deeper)}::-webkit-scrollbar-thumb{background:var(--c-card-2);border-radius:5px}::-webkit-scrollbar-thumb:hover{background:var(--c-primary)}
+ .stream-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
+ @media(max-width:700px){.stream-modal-grid{grid-template-columns:1fr}}
+diff --git a/index.html b/index.html
+index 5ff24af..2c2a9a8 100644
+--- a/index.html
++++ b/index.html
+@@ -9,6 +9,8 @@
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="css/styles.css">
++<link rel="stylesheet" href="css/extras.css">
++<style>#sync-banner{display:none!important}</style>
+ <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%90%3C/text%3E%3C/svg%3E">
+ </head>
+ <body>
+@@ -208,9 +210,10 @@
+ 
+ <footer class="footer"></footer>
+ 
+-<script src="js/app.js"></script>
+-<script src="js/supabase-sync.js"></script>
+ <script src="js/livestream.js"></script>
++<script src="js/supabase-sync.js"></script>
++<script src="js/app.js"></script>
++<script src="js/extras.js"></script>
+ <script>
+ // ====== TICKER ======
+ APP.renderTicker();
+@@ -562,6 +565,17 @@ renderHighlights();
+ 
+ // ====== TILT ======
+ APP.attachTilt();
++
++// Re-render dynamic sections after storage/sync loads extra data
++window.addEventListener('gzvm:refresh', () => {
++  renderCountdown();
++  renderReel();
++  renderHomeLiveRooms();
++  renderCourtMap();
++  renderLeaderboard();
++  renderHighlights();
++  APP.renderTicker();
++});
+ </script>
+ </body>
+ </html>
+diff --git a/js/app.js b/js/app.js
+new file mode 100644
+index 0000000..a1002ff
+--- /dev/null
++++ b/js/app.js
+@@ -0,0 +1,439 @@
++/* =========================================================
++   Gen Z Volleyball Malawi — Core App Logic
++   Storage layer + utilities + shared UI
++   ========================================================= */
++
++const APP = {
++  name: 'Gen Z Volleyball Malawi',
++  short: 'GZVM',
++  storageKey: 'gzvm_data_v2',
++
++  // ---------- DATA LAYER ----------
++  data: {
++    users: [],          // {id, name, email, role, passwordHash}
++    players: [],        // {id, name, team, position, age, stats:{serve,spike,set,block,pass,dig}, photo, dob, contact, medical, waiver}
++    teams: [],          // {id, name, city, coach, contact, members[]}
++    matches: [],        // {id, homeTeam, awayTeam, date, venue, status, score:{home,away}, sets:[[h,a],...]}
++    bookings: [],       // {id, teamId, type:'match'|'practice', opponent, date, venue, status}
++    highlights: [],     // {id, title, player, team, date, thumb, videoUrl, views}
++    donations: [],      // {id, name, amount, message, date}
++    chat: [],           // {id, user, text, time}
++    feedback: [],       // {id, coach, player, videoTitle, text, date}
++    strategy: [],       // {id, coach, title, description, videoUrl, date}
++    notifications: [],
++    liveRooms: [],
++    scorePad: { home: 0, away: 0, sets: [] }
++  },
++
++  load() {
++    try {
++      const raw = localStorage.getItem(this.storageKey);
++      if (raw) {
++        const parsed = JSON.parse(raw);
++        this.data = { ...this.data, ...parsed };
++      }
++    } catch (e) { console.warn('Storage load failed', e); }
++  },
++
++  save() {
++    try { localStorage.setItem(this.storageKey, JSON.stringify(this.data)); }
++    catch (e) { console.warn('Storage save failed', e); }
++  },
++
++  // ---------- HELPERS ----------
++  uid() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8); },
++
++  hash(s) {
++    // simple non-cryptographic hash for demo passwords only
++    let h = 0;
++    for (let i = 0; i < s.length; i++) { h = (h << 5) - h + s.charCodeAt(i); h |= 0; }
++    return 'h_' + Math.abs(h);
++  },
++
++  fmtDate(d) {
++    if (!d) return 'TBD';
++    const dt = new Date(d);
++    return dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
++  },
++
++  fmtTime(d) {
++    const dt = new Date(d);
++    return dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
++  },
++
++  countdown(target) {
++    const t = new Date(target).getTime();
++    const now = Date.now();
++    const diff = Math.max(0, t - now);
++    const d = Math.floor(diff / 86400000);
++    const h = Math.floor((diff % 86400000) / 3600000);
++    const m = Math.floor((diff % 3600000) / 60000);
++    const s = Math.floor((diff % 60000) / 1000);
++    return { d, h, m, s, total: diff };
++  },
++
++  // ---------- AUTH ----------
++  currentUser() {
++    const id = sessionStorage.getItem('gzvm_user');
++    return this.data.users.find(u => u.id === id) || null;
++  },
++
++  login(email, password) {
++    const u = this.data.users.find(x => x.email.toLowerCase() === email.toLowerCase());
++    if (!u) throw new Error('No account with that email');
++    if (u.passwordHash !== this.hash(password)) throw new Error('Wrong password');
++    sessionStorage.setItem('gzvm_user', u.id);
++    return u;
++  },
++
++  logout() { sessionStorage.removeItem('gzvm_user'); },
++
++  register({ name, email, password, role }) {
++    if (this.data.users.some(u => u.email.toLowerCase() === email.toLowerCase()))
++      throw new Error('Email already registered');
++    const user = {
++      id: this.uid(),
++      name, email, role: role || 'player',
++      passwordHash: this.hash(password),
++      createdAt: new Date().toISOString()
++    };
++    this.data.users.push(user);
++    this.save();
++    sessionStorage.setItem('gzvm_user', user.id);
++    return user;
++  },
++
++  // ---------- UI HELPERS ----------
++  toast(message, type = 'info') {
++    let stack = document.querySelector('.toast-stack');
++    if (!stack) {
++      stack = document.createElement('div');
++      stack.className = 'toast-stack';
++      document.body.appendChild(stack);
++    }
++    const t = document.createElement('div');
++    t.className = 'toast ' + type;
++    t.textContent = message;
++    stack.appendChild(t);
++    setTimeout(() => {
++      t.style.opacity = '0';
++      t.style.transform = 'translateX(120%)';
++      t.style.transition = 'all 0.3s';
++      setTimeout(() => t.remove(), 300);
++    }, 3500);
++  },
++
++  // ---------- NAVBAR ----------
++  renderNavbar() {
++    const nav = document.querySelector('.nav');
++    if (!nav) return;
++    const user = this.currentUser();
++    const links = [
++      { href: 'index.html', label: 'Home' },
++      { href: 'training.html', label: 'Training' },
++      { href: 'live.html', label: 'Live' },
++      { href: 'teams.html', label: 'Teams' },
++      { href: 'leaderboard.html', label: 'Leaderboard' },
++      { href: 'matches.html', label: 'Matches' },
++      { href: 'register.html', label: 'Register' },
++      { href: 'donate.html', label: 'Donate' },
++    ];
++    const currentPage = location.pathname.split('/').pop() || 'index.html';
++    nav.innerHTML = `
++      <div class="container nav-inner">
++        <a class="brand" href="index.html">
++          <div class="logo">🏐</div>
++          <div>
++            GEN Z <span class="gradient-text">VOLLEYBALL</span>
++            <small>MALAWI</small>
++          </div>
++        </a>
++        <button class="nav-toggle" aria-label="menu">☰</button>
++        <ul class="nav-links">
++          ${links.map(l => `<li><a href="${l.href}" class="${currentPage === l.href ? 'active' : ''}">${l.label}</a></li>`).join('')}
++          ${user
++            ? `<li><a href="locker.html" class="${currentPage === 'locker.html' ? 'active' : ''}">🔒 Locker</a></li>
++               <li><a href="#" id="logout-btn">Logout</a></li>`
++            : `<li><a href="login.html" class="${currentPage === 'login.html' ? 'active' : ''}">Login</a></li>`
++          }
++        </ul>
++      </div>
++    `;
++    const toggle = nav.querySelector('.nav-toggle');
++    const linksEl = nav.querySelector('.nav-links');
++    if (toggle) toggle.addEventListener('click', () => linksEl.classList.toggle('open'));
++    const lo = nav.querySelector('#logout-btn');
++    if (lo) lo.addEventListener('click', e => { e.preventDefault(); this.logout(); this.toast('Logged out', 'success'); setTimeout(() => location.href = 'index.html', 500); });
++  },
++
++  // ---------- FOOTER ----------
++  renderFooter() {
++    const f = document.querySelector('.footer');
++    if (!f) return;
++    f.innerHTML = `
++      <div class="container">
++        <div class="footer-grid">
++          <div>
++            <h4>${this.name}</h4>
++            <p class="muted" style="font-size:0.9rem">Empowering the next generation of Malawian volleyball athletes. Train hard. Play smart. Rise together.</p>
++            <div style="margin-top:0.8rem; display:flex; gap:0.5rem;">
++              <a href="#" aria-label="Facebook">📘</a>
++              <a href="#" aria-label="Instagram">📸</a>
++              <a href="#" aria-label="TikTok">🎵</a>
++              <a href="#" aria-label="YouTube">▶️</a>
++            </div>
++          </div>
++          <div>
++            <h4>Quick Links</h4>
++            <ul>
++              <li><a href="training.html">Training Tips</a></li>
++              <li><a href="teams.html">Teams</a></li>
++              <li><a href="leaderboard.html">Leaderboard</a></li>
++              <li><a href="matches.html">Book a Match</a></li>
++              <li><a href="register.html">Player Registration</a></li>
++              <li><a href="donate.html">Donate</a></li>
++            </ul>
++          </div>
++          <div>
++            <h4>For Teams</h4>
++            <ul>
++              <li><a href="locker.html">Coach Locker Room</a></li>
++              <li><a href="register.html">Team Sign Up</a></li>
++              <li><a href="matches.html">Match Booking</a></li>
++              <li><a href="live.html">Live Streaming</a></li>
++            </ul>
++          </div>
++          <div>
++            <h4>Contact</h4>
++            <ul>
++              <li>📍 Blantyre, Malawi</li>
++              <li>📞 +265 888 123 456</li>
++              <li>✉️ hello@genzvolleyball.mw</li>
++            </ul>
++          </div>
++        </div>
++        <div class="footer-bottom">
++          © ${new Date().getFullYear()} ${this.name}. All rights reserved. Built with 🏐 for the under-25 community.
++        </div>
++      </div>
++    `;
++  },
++
++  // ---------- 3D BG ----------
++  renderBackground() {
++    if (document.querySelector('.scene-3d')) return;
++    const scene = document.createElement('div');
++    scene.className = 'scene-3d';
++    document.body.prepend(scene);
++    // Add 1-2 floating balls
++    if (window.innerWidth > 600) {
++      const ball = document.createElement('div');
++      ball.className = 'ball-3d';
++      document.body.appendChild(ball);
++    }
++  },
++
++  // ---------- TICKER ----------
++  renderTicker(containerSel = '.ticker-track') {
++    const el = document.querySelector(containerSel);
++    if (!el) return;
++    const items = [];
++    const recent = this.data.matches.filter(m => m.status === 'completed').slice(-6);
++    recent.forEach(m => {
++      const winner = m.score.home > m.score.away ? m.homeTeam : m.awayTeam;
++      const cls = m.score.home > m.score.away ? 'win' : (m.score.home < m.score.away ? 'loss' : 'draw');
++      items.push(`<span class="${cls}">🏐 ${m.homeTeam} ${m.score.home} - ${m.score.away} ${m.awayTeam} → ${winner} wins!</span>`);
++    });
++    if (items.length === 0) {
++      el.innerHTML = '<span>🏐 No matches played yet — register a team to get the first result on the board!</span><span>🏐 No matches played yet — register a team to get the first result on the board!</span>';
++    } else {
++      el.innerHTML = items.join('') + items.join(''); // duplicate for seamless loop
++    }
++  },
++
++  // ---------- CHAT ----------
++  initChat() {
++    const fab = document.createElement('button');
++    fab.className = 'chat-fab';
++    fab.innerHTML = '💬';
++    fab.title = 'Open chat';
++    fab.setAttribute('aria-label', 'Open chat');
++
++    const panel = document.createElement('div');
++    panel.className = 'chat-panel';
++    panel.innerHTML = `
++      <div class="chat-header">
++        <span>🏐 Team Chat</span>
++        <button aria-label="Close chat">✕</button>
++      </div>
++      <div class="chat-body"></div>
++      <form class="chat-input">
++        <input type="text" placeholder="Type a message..." maxlength="300" required>
++        <button type="submit">Send</button>
++      </form>
++    `;
++    document.body.appendChild(fab);
++    document.body.appendChild(panel);
++
++    const body = panel.querySelector('.chat-body');
++    const input = panel.querySelector('input');
++    const form = panel.querySelector('form');
++
++    const render = () => {
++      const me = this.currentUser();
++      body.innerHTML = this.data.chat.slice(-50).map(m => {
++        const isMe = me && m.userId === me.id;
++        return `<div class="chat-msg ${isMe ? 'me' : ''}">
++          <div class="who">${m.user}</div>
++          <div>${this.escapeHtml(m.text)}</div>
++        </div>`;
++      }).join('');
++      body.scrollTop = body.scrollHeight;
++    };
++
++    fab.addEventListener('click', () => {
++      panel.classList.toggle('open');
++      if (panel.classList.contains('open')) render();
++    });
++    panel.querySelector('.chat-header button').addEventListener('click', () => panel.classList.remove('open'));
++
++    form.addEventListener('submit', e => {
++      e.preventDefault();
++      const me = this.currentUser();
++      const name = me ? me.name : (localStorage.getItem('gzvm_chat_name') || ('Guest_' + Math.floor(Math.random() * 999)));
++      if (!me) localStorage.setItem('gzvm_chat_name', name);
++      const text = input.value.trim();
++      if (!text) return;
++      this.data.chat.push({ id: this.uid(), userId: me?.id, user: name, text, time: Date.now() });
++      if (this.data.chat.length > 200) this.data.chat = this.data.chat.slice(-200);
++      this.save();
++      input.value = '';
++      render();
++    });
++  },
++
++  escapeHtml(s) {
++    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
++  },
++
++  // ---------- 3D TILT EFFECT ----------
++  attachTilt(selector = '.card-3d') {
++    document.querySelectorAll(selector).forEach(card => {
++      card.addEventListener('mousemove', e => {
++        const r = card.getBoundingClientRect();
++        const x = e.clientX - r.left;
++        const y = e.clientY - r.top;
++        const rx = ((y / r.height) - 0.5) * -8;
++        const ry = ((x / r.width) - 0.5) * 8;
++        card.style.setProperty('--rx', rx + 'deg');
++        card.style.setProperty('--ry', ry + 'deg');
++      });
++      card.addEventListener('mouseleave', () => {
++        card.style.setProperty('--rx', '0deg');
++        card.style.setProperty('--ry', '0deg');
++      });
++    });
++  },
++
++  // ---------- INIT ----------
++  async init() {
++    if (this.__booted) return;
++    this.__booted = true;
++    this.load();
++    this.renderBackground();
++    this.renderNavbar();
++    this.renderFooter();
++    this.initChat();
++    if (window.LIVE) LIVE.init();
++    if (window.SYNC) {
++      await SYNC.init();
++      SYNC.installSaveHook();
++      // Listen for remote changes and re-render whatever is on screen
++      window.addEventListener('gzvm:sync', () => {
++        // Re-render ticker (scores change)
++        this.renderTicker();
++        // Custom event for pages to re-render their specific UI
++        window.dispatchEvent(new CustomEvent('gzvm:refresh'));
++      });
++    }
++  },
++
++  // ---------- PUBLIC HIGHLIGHTS POOL ----------
++  // Curated set of well-known public volleyball highlight videos on YouTube.
++  // Used by the Live page and the Home page when no real match is live.
++  // All videos are embeddable and free to share. You can edit this list anytime.
++  publicHighlights: [
++    {
++      id: 'ph1',
++      title: 'Best Volleyball Spikes 2024',
++      channel: 'Sports Arena',
++      videoId: 'k3hAkv3Gf50',
++      category: 'spikes',
++      duration: '8:12'
++    },
++    {
++      id: 'ph2',
++      title: 'Incredible Volleyball Saves',
++      channel: 'Volley Highlights',
++      videoId: 'F6W-b3iAIkM',
++      category: 'saves',
++      duration: '6:45'
++    },
++    {
++      id: 'ph3',
++      title: 'Top 10 Volleyball Serves',
++      channel: 'Volleyball World',
++      videoId: 'l1cD9LMbcwE',
++      category: 'serves',
++      duration: '5:20'
++    },
++    {
++      id: 'ph4',
++      title: 'Monster Blocks Compilation',
++      channel: 'Block Party',
++      videoId: 'A8A5QxqDYzw',
++      category: 'blocks',
++      duration: '7:33'
++    },
++    {
++      id: 'ph5',
++      title: 'Volleyball Setting Masterclass',
++      channel: 'Coach Insights',
++      videoId: 'jS4nD5b3GCA',
++      category: 'sets',
++      duration: '9:15'
++    },
++    {
++      id: 'ph6',
++      title: 'African Volleyball Championship Highlights',
++      channel: 'CAVB',
++      videoId: 'M7lc1UVf-VE',
++      category: 'matches',
++      duration: '10:48'
++    }
++  ],
++
++  embedUrl(videoId) {
++    return `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1`;
++  },
++
++  thumbUrl(videoId) {
++    return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
++  }
++};
++
++// Load persisted data immediately so inline page scripts have it
++// (APP.init() is deferred to DOMContentLoaded for navbar/footer).
++APP.load();
++window.APP = APP;
++
++// Boot UI after the rest of the page scripts (LIVE / SYNC) have executed
++(function () {
++  const start = () => { APP.init(); };
++  if (document.readyState === 'loading') {
++    document.addEventListener('DOMContentLoaded', start);
++  } else {
++    start();
++  }
++})();
++
+diff --git a/js/extras.js b/js/extras.js
+new file mode 100644
+index 0000000..19741e9
+--- /dev/null
++++ b/js/extras.js
+@@ -0,0 +1,363 @@
++/* =========================================================
++   Extra site UX — theme, cookies, search, a11y, forms, FAQ
++   ========================================================= */
++const EXTRAS = {
++  updated: '25 Aug 2026',
++  pages: [
++    { title: 'Home', href: 'index.html', keys: 'train play rise countdown score pad map highlights' },
++    { title: 'Training', href: 'training.html', keys: 'serve spike pass set block fitness drills' },
++    { title: 'Live', href: 'live.html', keys: 'stream watch highlights reel go live camera' },
++    { title: 'Teams', href: 'teams.html', keys: 'roster city coach logo' },
++    { title: 'Leaderboard', href: 'leaderboard.html', keys: 'rank points mvp players stats' },
++    { title: 'Matches', href: 'matches.html', keys: 'book fixture schedule results practice' },
++    { title: 'Register', href: 'register.html', keys: 'player team signup waiver medical' },
++    { title: 'Donate', href: 'donate.html', keys: 'support money mwk fundraiser' },
++    { title: 'Login', href: 'login.html', keys: 'account sign in coach' },
++    { title: 'Locker', href: 'locker.html', keys: 'coach strategy feedback roster' }
++  ],
++  faqs: [
++    { q: 'Who can join Gen Z Volleyball Malawi?', a: 'Players under 25. You must be 13+ to register, and 18+ (or have a guardian) to sign the waiver.' },
++    { q: 'How do I watch a live stream?', a: 'Open Live, or tap a Watch link someone shared. Camera streams use a direct watch link — no codes to copy.' },
++    { q: 'How do I book a match?', a: 'Log in, go to Matches, tap Book a Match, pick your team, venue and time.' },
++    { q: 'Is my data private?', a: 'Profile photos and scores stay in your browser unless league sync is configured by an admin. Medical forms are only for coaches.' },
++    { q: 'How do donations work?', a: 'Choose an amount in MWK and a payment method. You’ll get an on-screen confirmation. Funds go to gear, transport and court hire.' }
++  ],
++
++  init() {
++    this.captureUtm();
++    this.skipLink();
++    this.loader();
++    this.themeToggle();
++    this.search();
++    this.backToTop();
++    this.cookieBanner();
++    this.passwordToggles();
++    this.copyButtons();
++    this.formHelpers();
++    this.faq();
++    this.floatingContact();
++    this.lastUpdated();
++    this.scoreProgress();
++    this.markMain();
++  },
++
++  captureUtm() {
++    const p = new URLSearchParams(location.search);
++    const utm = {};
++    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(k => {
++      if (p.get(k)) utm[k] = p.get(k);
++    });
++    if (Object.keys(utm).length) {
++      sessionStorage.setItem('gzvm_utm', JSON.stringify(utm));
++    }
++  },
++  getUtm() {
++    try { return JSON.parse(sessionStorage.getItem('gzvm_utm') || '{}'); } catch { return {}; }
++  },
++
++  skipLink() {
++    if (document.querySelector('.skip-link')) return;
++    const a = document.createElement('a');
++    a.className = 'skip-link';
++    a.href = '#main';
++    a.textContent = 'Skip to content';
++    document.body.prepend(a);
++  },
++  markMain() {
++    const m = document.querySelector('main');
++    if (m && !m.id) m.id = 'main';
++  },
++
++  loader() {
++    if (document.getElementById('page-loader')) return;
++    const bar = document.createElement('div');
++    bar.id = 'top-progress';
++    document.body.appendChild(bar);
++    requestAnimationFrame(() => { bar.style.width = '70%'; });
++    const el = document.createElement('div');
++    el.id = 'page-loader';
++    el.innerHTML = '<div class="loader-ball" aria-hidden="true"></div>';
++    document.body.appendChild(el);
++    window.addEventListener('load', () => {
++      bar.style.width = '100%';
++      el.classList.add('done');
++      setTimeout(() => bar.remove(), 400);
++    });
++    setTimeout(() => { el.classList.add('done'); bar.style.width = '100%'; }, 1800);
++  },
++
++  themeToggle() {
++    const saved = localStorage.getItem('gzvm_theme');
++    if (saved) document.documentElement.setAttribute('data-theme', saved);
++    const btn = document.createElement('button');
++    btn.className = 'theme-toggle';
++    btn.type = 'button';
++    btn.title = 'Toggle light / dark';
++    btn.setAttribute('aria-label', 'Toggle colour theme');
++    const sync = () => {
++      const light = document.documentElement.getAttribute('data-theme') === 'light';
++      btn.textContent = light ? '☀️' : '🌙';
++    };
++    sync();
++    btn.addEventListener('click', () => {
++      const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
++      document.documentElement.setAttribute('data-theme', next);
++      localStorage.setItem('gzvm_theme', next);
++      sync();
++    });
++    this.placeInNav(btn);
++  },
++
++  search() {
++    const btn = document.createElement('button');
++    btn.className = 'search-toggle';
++    btn.type = 'button';
++    btn.textContent = '⌕';
++    btn.title = 'Search the site';
++    btn.setAttribute('aria-label', 'Search');
++    const overlay = document.createElement('div');
++    overlay.id = 'search-overlay';
++    overlay.innerHTML = `<div class="box">
++      <input id="site-search-input" class="form-control" type="search" placeholder="Search pages, training, teams…" autofocus>
++      <div id="search-results"></div>
++      <p class="muted" style="font-size:0.8rem;margin-top:0.6rem">Esc to close</p>
++    </div>`;
++    document.body.appendChild(overlay);
++    const render = (q) => {
++      const needle = (q || '').toLowerCase().trim();
++      const hits = this.pages.filter(p =>
++        !needle || p.title.toLowerCase().includes(needle) || p.keys.includes(needle)
++      );
++      document.getElementById('search-results').innerHTML = hits.map(p =>
++        `<a href="${p.href}"><strong>${p.title}</strong><div class="muted" style="font-size:0.8rem">${p.keys}</div></a>`
++      ).join('') || '<p class="muted">No matches</p>';
++    };
++    const open = () => { overlay.classList.add('open'); const i = document.getElementById('site-search-input'); i.value = ''; render(''); setTimeout(() => i.focus(), 50); };
++    const close = () => overlay.classList.remove('open');
++    btn.addEventListener('click', open);
++    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
++    document.addEventListener('keydown', e => {
++      if (e.key === 'Escape') close();
++      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); open(); }
++    });
++    overlay.addEventListener('input', e => { if (e.target.id === 'site-search-input') render(e.target.value); });
++    this.placeInNav(btn);
++  },
++
++  placeInNav(el) {
++    const tryPlace = () => {
++      const inner = document.querySelector('.nav-inner');
++      if (!inner) return false;
++      const toggle = inner.querySelector('.nav-toggle');
++      if (toggle) inner.insertBefore(el, toggle);
++      else inner.appendChild(el);
++      return true;
++    };
++    if (!tryPlace()) setTimeout(tryPlace, 300);
++  },
++
++  backToTop() {
++    const b = document.createElement('button');
++    b.id = 'to-top';
++    b.type = 'button';
++    b.textContent = '↑';
++    b.title = 'Back to top';
++    b.setAttribute('aria-label', 'Back to top');
++    b.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
++    document.body.appendChild(b);
++    window.addEventListener('scroll', () => b.classList.toggle('show', window.scrollY > 400), { passive: true });
++  },
++
++  cookieBanner() {
++    if (localStorage.getItem('gzvm_cookies')) return;
++    const bar = document.createElement('div');
++    bar.className = 'cookie-banner';
++    bar.innerHTML = `<p>We use a few cookies to remember your theme and keep the site working. No ads.</p>
++      <button class="btn btn-primary btn-sm" id="cookie-ok">OK</button>
++      <button class="btn btn-ghost btn-sm" id="cookie-no">Decline</button>`;
++    document.body.appendChild(bar);
++    const done = (v) => { localStorage.setItem('gzvm_cookies', v); bar.remove(); };
++    bar.querySelector('#cookie-ok').addEventListener('click', () => done('ok'));
++    bar.querySelector('#cookie-no').addEventListener('click', () => done('no'));
++  },
++
++  passwordToggles() {
++    document.querySelectorAll('input[type="password"]').forEach(input => {
++      if (input.closest('.pw-wrap')) return;
++      const wrap = document.createElement('div');
++      wrap.className = 'pw-wrap';
++      input.parentNode.insertBefore(wrap, input);
++      wrap.appendChild(input);
++      const btn = document.createElement('button');
++      btn.type = 'button';
++      btn.className = 'pw-toggle';
++      btn.textContent = 'Show';
++      btn.addEventListener('click', () => {
++        const show = input.type === 'password';
++        input.type = show ? 'text' : 'password';
++        btn.textContent = show ? 'Hide' : 'Show';
++      });
++      wrap.appendChild(btn);
++    });
++  },
++
++  copyButtons() {
++    document.querySelectorAll('code, [data-copy]').forEach(el => {
++      if (el.dataset.copyBound) return;
++      el.dataset.copyBound = '1';
++      const btn = document.createElement('button');
++      btn.type = 'button';
++      btn.className = 'copy-btn-inline';
++      btn.textContent = 'Copy';
++      btn.addEventListener('click', () => {
++        const text = el.getAttribute('data-copy') || el.textContent;
++        navigator.clipboard.writeText(text).then(() => {
++          btn.textContent = 'Copied';
++          if (window.APP) APP.toast('Copied', 'success');
++          setTimeout(() => btn.textContent = 'Copy', 1500);
++        });
++      });
++      el.after(btn);
++    });
++  },
++
++  formHelpers() {
++    document.querySelectorAll('form').forEach(form => {
++      if (form.dataset.extrasBound) return;
++      form.dataset.extrasBound = '1';
++      form.addEventListener('submit', () => {
++        const utm = this.getUtm();
++        if (Object.keys(utm).length) {
++          let f = form.querySelector('input[name="utm"]');
++          if (!f) { f = document.createElement('input'); f.type = 'hidden'; f.name = 'utm'; form.appendChild(f); }
++          f.value = JSON.stringify(utm);
++        }
++      });
++    });
++  },
++
++  confirm(message) {
++    return new Promise(resolve => {
++      const existing = document.getElementById('confirm-modal');
++      if (existing) existing.remove();
++      const m = document.createElement('div');
++      m.id = 'confirm-modal';
++      m.className = 'modal-backdrop open';
++      m.innerHTML = `<div class="modal" style="max-width:420px">
++        <h3>Please confirm</h3>
++        <p class="muted">${message}</p>
++        <div style="display:flex;gap:0.5rem;margin-top:1rem;justify-content:flex-end">
++          <button class="btn btn-ghost btn-sm" data-no>Cancel</button>
++          <button class="btn btn-primary btn-sm" data-yes>Confirm</button>
++        </div>
++      </div>`;
++      document.body.appendChild(m);
++      m.querySelector('[data-no]').addEventListener('click', () => { m.remove(); resolve(false); });
++      m.querySelector('[data-yes]').addEventListener('click', () => { m.remove(); resolve(true); });
++      m.addEventListener('click', e => { if (e.target === m) { m.remove(); resolve(false); } });
++    });
++  },
++
++  showSuccess(form, title, body) {
++    let box = form.parentNode.querySelector('.form-success');
++    if (!box) {
++      box = document.createElement('div');
++      box.className = 'form-success';
++      form.parentNode.appendChild(box);
++    }
++    box.innerHTML = `<div class="icon">✅</div><h3>${title}</h3><p class="muted">${body}</p>`;
++    box.classList.add('show');
++    form.style.display = 'none';
++  },
++
++  faq() {
++    if (document.getElementById('site-faq')) return;
++    const footer = document.querySelector('footer');
++    if (!footer) return;
++    const sec = document.createElement('section');
++    sec.id = 'site-faq';
++    sec.innerHTML = `<div class="container">
++      <div class="section-title"><span class="badge">FAQ</span><h2>Questions</h2></div>
++      <div class="faq-list">${this.faqs.map((f, i) =>
++        `<div class="faq-item"><button type="button" aria-expanded="false">${f.q}</button><div class="faq-body">${f.a}</div></div>`
++      ).join('')}</div>
++    </div>`;
++    footer.parentNode.insertBefore(sec, footer);
++    sec.querySelectorAll('.faq-item button').forEach(btn => {
++      btn.addEventListener('click', () => {
++        const item = btn.parentElement;
++        const open = item.classList.toggle('open');
++        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
++      });
++    });
++  },
++
++  floatingContact() {
++    if (document.getElementById('contact-fab')) return;
++    const fab = document.createElement('button');
++    fab.id = 'contact-fab';
++    fab.className = 'contact-fab';
++    fab.type = 'button';
++    fab.title = 'Contact us';
++    fab.setAttribute('aria-label', 'Contact');
++    fab.textContent = '✉️';
++    const panel = document.createElement('div');
++    panel.className = 'contact-panel';
++    panel.innerHTML = `<h3>Contact</h3>
++      <p class="muted" style="font-size:0.85rem">Blantyre · hello@genzvolleyball.mw</p>
++      <form id="contact-form">
++        <div class="form-group"><label>Name</label><input class="form-control" name="name" required></div>
++        <div class="form-group"><label>Email</label><input class="form-control" type="email" name="email" required></div>
++        <div class="form-group"><label>Message</label><textarea class="form-control" name="msg" required></textarea></div>
++        <button class="btn btn-primary btn-block btn-sm" type="submit">Send</button>
++      </form>`;
++    document.body.appendChild(fab);
++    document.body.appendChild(panel);
++    fab.addEventListener('click', () => panel.classList.toggle('open'));
++    panel.querySelector('#contact-form').addEventListener('submit', e => {
++      e.preventDefault();
++      const fd = new FormData(e.target);
++      const body = encodeURIComponent(`${fd.get('msg')}\n\nFrom: ${fd.get('name')} <${fd.get('email')}>`);
++      location.href = `mailto:hello@genzvolleyball.mw?subject=${encodeURIComponent('GZVM contact')}&body=${body}`;
++      this.showSuccess(e.target, 'Ready to send', 'Your email app should open. We usually reply within 2 days.');
++    });
++  },
++
++  lastUpdated() {
++    const f = document.querySelector('.footer-bottom');
++    if (!f || f.querySelector('.updated-stamp')) return;
++    const s = document.createElement('div');
++    s.className = 'updated-stamp';
++    s.textContent = 'Last updated ' + this.updated;
++    f.appendChild(s);
++  },
++
++  scoreProgress() {
++    const home = document.getElementById('sp-home');
++    const away = document.getElementById('sp-away');
++    if (!home || !away) return;
++    const wrap = document.createElement('div');
++    wrap.innerHTML = `<div class="set-progress" title="Points toward 25"><span id="sp-bar-home"></span></div>
++      <div class="set-progress" title="Points toward 25"><span id="sp-bar-away"></span></div>`;
++    const sets = document.getElementById('sp-sets');
++    if (sets) sets.parentNode.insertBefore(wrap, sets);
++    const tick = () => {
++      const h = Math.min(100, (parseInt(home.textContent) || 0) / 25 * 100);
++      const a = Math.min(100, (parseInt(away.textContent) || 0) / 25 * 100);
++      const bh = document.getElementById('sp-bar-home');
++      const ba = document.getElementById('sp-bar-away');
++      if (bh) bh.style.width = h + '%';
++      if (ba) ba.style.width = a + '%';
++    };
++    new MutationObserver(tick).observe(home, { childList: true, characterData: true, subtree: true });
++    new MutationObserver(tick).observe(away, { childList: true, characterData: true, subtree: true });
++    tick();
++  }
++};
++
++if (document.readyState === 'loading') {
++  document.addEventListener('DOMContentLoaded', () => EXTRAS.init());
++} else {
++  EXTRAS.init();
++}
++window.EXTRAS = EXTRAS;
+diff --git a/js/livestream.js b/js/livestream.js
+new file mode 100644
+index 0000000..0512aa5
+--- /dev/null
++++ b/js/livestream.js
+@@ -0,0 +1,392 @@
++/* =========================================================
++   Live streaming — PeerJS (watch via link) + YouTube/Twitch
++   Viewers open a link. No offer/answer codes.
++   ========================================================= */
++
++const LIVE = {
++  state: 'idle',
++  localStream: null,
++  currentRoom: null,
++  hostPeer: null,
++  viewerPeer: null,
++  peers: new Map(),
++  rooms: [],
++
++  init() {
++    this.loadRooms();
++    this.renderBroadcastButton();
++    this.autoJoinFromUrl();
++  },
++
++  async ensurePeer() {
++    if (window.Peer) return;
++    await new Promise((resolve, reject) => {
++      const s = document.createElement('script');
++      s.src = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
++      s.onload = resolve;
++      s.onerror = () => reject(new Error('Could not load the live-video library'));
++      document.head.appendChild(s);
++    });
++  },
++
++  iceConfig() {
++    return {
++      config: {
++        iceServers: [
++          { urls: 'stun:stun.l.google.com:19302' },
++          { urls: 'stun:stun1.l.google.com:19302' }
++        ]
++      }
++    };
++  },
++
++  loadRooms() {
++    let local = [];
++    try { local = JSON.parse(localStorage.getItem('gzvm_rooms') || '[]'); } catch { local = []; }
++    const synced = (window.APP && Array.isArray(APP.data.liveRooms)) ? APP.data.liveRooms : [];
++    const byId = new Map();
++    [...local, ...synced].forEach(r => { if (r && r.id) byId.set(r.id, r); });
++    this.rooms = [...byId.values()];
++  },
++  saveRooms() {
++    try { localStorage.setItem('gzvm_rooms', JSON.stringify(this.rooms)); } catch {}
++    if (window.APP) {
++      APP.data.liveRooms = this.rooms;
++      APP.save();
++    }
++  },
++  createRoom(hostName, title, description, type = 'p2p') {
++    const room = {
++      id: 'room_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
++      host: hostName,
++      title: title || 'Live stream',
++      description: description || '',
++      type,
++      peerId: null,
++      externalUrl: null,
++      startedAt: new Date().toISOString(),
++      viewers: 0,
++      active: true
++    };
++    this.rooms = this.rooms.filter(r => r.id !== room.id);
++    this.rooms.push(room);
++    this.saveRooms();
++    return room;
++  },
++  endRoom(roomId) {
++    const r = this.rooms.find(x => x.id === roomId);
++    if (r) { r.active = false; r.endedAt = new Date().toISOString(); }
++    this.saveRooms();
++  },
++  getActiveRooms() {
++    this.loadRooms();
++    return this.rooms.filter(r => r.active);
++  },
++  listenToRooms(callback) {
++    window.addEventListener('storage', e => {
++      if (e.key === 'gzvm_rooms') { this.loadRooms(); callback(); }
++    });
++    window.addEventListener('gzvm:refresh', () => { this.loadRooms(); callback(); });
++    setInterval(() => {
++      const before = JSON.stringify(this.rooms);
++      this.loadRooms();
++      if (JSON.stringify(this.rooms) !== before) callback();
++    }, 3000);
++  },
++
++  async getCamera(optional = false) {
++    if (this.localStream) return this.localStream;
++    if (!navigator.mediaDevices?.getUserMedia) {
++      if (optional) return null;
++      throw new Error('Camera needs HTTPS or localhost.');
++    }
++    try {
++      this.localStream = await navigator.mediaDevices.getUserMedia({
++        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
++        audio: { echoCancellation: true, noiseSuppression: true }
++      });
++      return this.localStream;
++    } catch (err) {
++      if (optional) return null;
++      throw new Error('Camera/mic access denied: ' + err.message);
++    }
++  },
++  stopCamera() {
++    if (this.localStream) {
++      this.localStream.getTracks().forEach(t => t.stop());
++      this.localStream = null;
++    }
++    if (this.hostPeer) { try { this.hostPeer.destroy(); } catch {} this.hostPeer = null; }
++    if (this.viewerPeer) { try { this.viewerPeer.destroy(); } catch {} this.viewerPeer = null; }
++    this.peers.forEach(c => { try { c.close(); } catch {} });
++    this.peers.clear();
++  },
++
++  watchUrl(room) {
++    const u = new URL('live.html', location.href);
++    if (room.peerId) u.searchParams.set('peer', room.peerId);
++    u.searchParams.set('room', room.id);
++    return u.href;
++  },
++
++  async startCameraBroadcast(title) {
++    await this.ensurePeer();
++    const stream = await this.getCamera();
++    this.hostPeer = new window.Peer(this.iceConfig());
++    const peerId = await new Promise((resolve, reject) => {
++      this.hostPeer.on('open', id => resolve(id));
++      this.hostPeer.on('error', err => reject(err));
++      setTimeout(() => reject(new Error('Live connection timed out')), 12000);
++    });
++    this.hostPeer.on('connection', conn => {
++      const call = this.hostPeer.call(conn.peer, stream);
++      this.peers.set(conn.peer, call);
++      if (this.currentRoom) {
++        this.currentRoom.viewers = this.peers.size;
++        this.saveRooms();
++      }
++    });
++    this.hostPeer.on('call', call => call.answer(stream));
++    const me = window.APP && APP.currentUser();
++    this.currentRoom = this.createRoom(me?.name || 'Broadcaster', title, '', 'p2p');
++    this.currentRoom.peerId = peerId;
++    this.saveRooms();
++    this.state = 'broadcasting';
++    const fab = document.getElementById('live-fab');
++    if (fab) fab.classList.add('active');
++    return this.currentRoom;
++  },
++
++  async watchPeer(peerId, videoEl) {
++    await this.ensurePeer();
++    this.viewerPeer = new window.Peer(this.iceConfig());
++    await new Promise((resolve, reject) => {
++      this.viewerPeer.on('open', () => resolve());
++      this.viewerPeer.on('error', reject);
++      setTimeout(() => reject(new Error('Could not reach the live server')), 12000);
++    });
++    this.viewerPeer.on('call', call => {
++      call.answer();
++      call.on('stream', remote => {
++        if (videoEl) {
++          videoEl.srcObject = remote;
++          videoEl.play?.().catch(() => {});
++        }
++      });
++    });
++    this.viewerPeer.connect(peerId);
++    this.state = 'viewing';
++  },
++
++  autoJoinFromUrl() {
++    const params = new URLSearchParams(location.search);
++    const peer = params.get('peer');
++    if (!peer || !location.pathname.endsWith('live.html')) return;
++    // live.html script also handles this; keep a late fallback
++    window.addEventListener('gzvm:join-peer', () => {});
++  },
++
++  renderBroadcastButton() {
++    if (document.getElementById('live-fab')) return;
++    const fab = document.createElement('button');
++    fab.id = 'live-fab';
++    fab.className = 'live-fab';
++    fab.innerHTML = '📡';
++    fab.title = 'Start a live stream';
++    fab.setAttribute('aria-label', 'Start a live stream');
++    document.body.appendChild(fab);
++    fab.addEventListener('click', () => this.openStreamModal());
++    if (!document.getElementById('live-fab-styles')) {
++      const style = document.createElement('style');
++      style.id = 'live-fab-styles';
++      style.textContent = `
++        .live-fab {
++          position: fixed; bottom: 24px; right: 100px;
++          width: 60px; height: 60px; border-radius: 50%;
++          background: linear-gradient(135deg, #ff3b6b 0%, #ffd400 100%);
++          color: #0b1426; border: none; font-size: 1.6rem; cursor: pointer;
++          box-shadow: 0 12px 0 0 rgba(0,0,0,0.35), 0 0 30px rgba(255,59,107,0.6);
++          z-index: 90;
++        }
++        .live-fab.active { animation: livePulse 1.5s infinite; }
++        @keyframes livePulse {
++          0%,100% { box-shadow: 0 12px 0 0 rgba(0,0,0,0.35), 0 0 30px rgba(255,59,107,0.6); }
++          50% { box-shadow: 0 12px 0 0 rgba(0,0,0,0.35), 0 0 50px rgba(255,59,107,1); }
++        }
++        .stream-modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem; }
++        @media (max-width:700px){ .stream-modal-grid{grid-template-columns:1fr} }
++        .stream-choice { background:var(--c-deeper); border:2px solid rgba(255,255,255,0.1); border-radius:12px; padding:1.2rem; cursor:pointer; text-align:center; }
++        .stream-choice:hover { border-color:var(--c-primary); }
++        .stream-choice .icon { font-size:2.5rem; }
++        .video-preview { width:100%; background:#000; border-radius:8px; aspect-ratio:16/9; object-fit:cover; }
++        .live-room-card { position:relative; background:var(--c-card); border:2px solid var(--c-danger); border-radius:12px; padding:1rem; margin-bottom:.8rem; }
++        .live-room-card .live-pill { position:absolute; top:10px; right:10px; background:var(--c-danger); color:#fff; padding:.2rem .6rem; border-radius:4px; font-size:.7rem; font-weight:800; }
++        .share-link { width:100%; padding:.6rem; border-radius:8px; background:#000; color:#00ff88; border:1px solid rgba(255,255,255,.1); font-size:.8rem; }
++      `;
++      document.head.appendChild(style);
++    }
++  },
++
++  async openStreamModal(mode = null) {
++    const existing = document.getElementById('stream-modal');
++    if (existing) existing.remove();
++    const modal = document.createElement('div');
++    modal.id = 'stream-modal';
++    modal.className = 'modal-backdrop open';
++    modal.innerHTML = `
++      <div class="modal" style="max-width:720px">
++        <div class="modal-header"><h3>📡 Go Live</h3><button class="modal-close" data-close>✕</button></div>
++        <p class="muted" style="font-size:.9rem">Start a camera stream — viewers just open your link. Or paste a YouTube / Twitch URL.</p>
++        <div class="stream-modal-grid">
++          <div class="stream-choice" id="choose-p2p"><div class="icon">🏐</div><h4>Stream from my camera</h4><p>Anyone with the watch link can join.</p></div>
++          <div class="stream-choice" id="choose-external"><div class="icon">📺</div><h4>YouTube / Twitch / Facebook</h4><p>Paste a public watch URL.</p></div>
++        </div>
++        <div id="p2p-panel" style="display:none;margin-top:1.2rem">
++          <div class="form-group"><label>Stream title</label><input id="p2p-title" class="form-control" placeholder="e.g. Lilongwe practice"></div>
++          <button class="btn btn-primary" id="start-camera-live">📹 Go Live from camera</button>
++          <video id="local-preview" class="video-preview" autoplay muted playsinline style="margin-top:.8rem;display:none"></video>
++          <div id="share-wrap" style="display:none;margin-top:.8rem">
++            <label class="muted" style="font-size:.8rem">SHARE THIS WATCH LINK</label>
++            <input id="share-link" class="share-link" readonly>
++            <button class="btn btn-accent btn-sm" id="copy-share" style="margin-top:.4rem">📋 Copy watch link</button>
++            <p class="muted" style="font-size:.8rem;margin-top:.4rem">Send it in chat, WhatsApp or SMS. The other person taps it and the stream plays.</p>
++          </div>
++          <button class="btn btn-ghost btn-sm" id="end-broadcast" style="margin-top:1rem;display:none">⏹ End Broadcast</button>
++        </div>
++        <div id="external-panel" style="display:none;margin-top:1.2rem">
++          <div class="form-group"><label>Title</label><input id="ext-title" class="form-control"></div>
++          <div class="form-group"><label>Service</label>
++            <select id="ext-service" class="form-control"><option>YouTube Live</option><option>Twitch</option><option>Facebook Live</option><option>Other</option></select>
++          </div>
++          <div class="form-group"><label>Watch URL</label><input id="ext-url" class="form-control" type="url" placeholder="https://www.youtube.com/watch?v=..."></div>
++          <button class="btn btn-primary" id="start-external">🚀 Go Live</button>
++        </div>
++        <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,.1)">
++          <h4>📡 Currently Live</h4>
++          <div id="active-rooms"></div>
++          <p id="no-rooms" class="text-center muted" style="padding:1rem">No active streams right now.</p>
++        </div>
++      </div>`;
++    document.body.appendChild(modal);
++    const close = () => modal.remove();
++    modal.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', close));
++    modal.addEventListener('click', e => { if (e.target === modal) close(); });
++    document.getElementById('choose-p2p').onclick = () => {
++      document.getElementById('p2p-panel').style.display = 'block';
++      document.getElementById('external-panel').style.display = 'none';
++    };
++    document.getElementById('choose-external').onclick = () => {
++      document.getElementById('p2p-panel').style.display = 'none';
++      document.getElementById('external-panel').style.display = 'block';
++    };
++    if (mode === 'p2p') document.getElementById('choose-p2p').click();
++    if (mode === 'external') document.getElementById('choose-external').click();
++
++    document.getElementById('start-camera-live').addEventListener('click', async () => {
++      try {
++        const title = document.getElementById('p2p-title').value.trim() || 'Live stream';
++        document.getElementById('start-camera-live').disabled = true;
++        document.getElementById('start-camera-live').textContent = 'Connecting…';
++        const room = await this.startCameraBroadcast(title);
++        const preview = document.getElementById('local-preview');
++        preview.srcObject = this.localStream;
++        preview.style.display = 'block';
++        const link = this.watchUrl(room);
++        document.getElementById('share-link').value = link;
++        document.getElementById('share-wrap').style.display = 'block';
++        document.getElementById('end-broadcast').style.display = 'inline-flex';
++        APP.toast('You are live — copy the watch link', 'success');
++        this.renderActiveRooms();
++      } catch (e) {
++        document.getElementById('start-camera-live').disabled = false;
++        document.getElementById('start-camera-live').textContent = '📹 Go Live from camera';
++        APP.toast(e.message || 'Could not go live', 'error');
++      }
++    });
++    document.getElementById('copy-share').addEventListener('click', () => {
++      const v = document.getElementById('share-link').value;
++      navigator.clipboard.writeText(v).then(() => APP.toast('Watch link copied', 'success'));
++    });
++    document.getElementById('end-broadcast').addEventListener('click', () => { this.endBroadcast(); modal.remove(); });
++    document.getElementById('start-external').addEventListener('click', () => {
++      const title = document.getElementById('ext-title').value.trim() || 'Live Stream';
++      const url = document.getElementById('ext-url').value.trim();
++      if (!url) return APP.toast('Paste your stream URL', 'error');
++      const me = APP.currentUser();
++      this.currentRoom = this.createRoom(me?.name || 'Broadcaster', title, url, 'external');
++      this.currentRoom.externalUrl = url;
++      this.currentRoom.service = document.getElementById('ext-service').value;
++      this.saveRooms();
++      this.state = 'broadcasting';
++      document.getElementById('live-fab')?.classList.add('active');
++      APP.toast('You are live', 'success');
++      modal.remove();
++    });
++    this.renderActiveRooms();
++  },
++
++  endBroadcast() {
++    if (this.currentRoom) { this.endRoom(this.currentRoom.id); this.currentRoom = null; }
++    this.stopCamera();
++    this.state = 'idle';
++    document.getElementById('live-fab')?.classList.remove('active');
++    APP.toast('Stream ended', 'info');
++  },
++  cleanup() { this.stopCamera(); },
++
++  renderActiveRooms() {
++    const wrap = document.getElementById('active-rooms');
++    const empty = document.getElementById('no-rooms');
++    if (!wrap) return;
++    const active = this.getActiveRooms();
++    if (!active.length) { wrap.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
++    if (empty) empty.style.display = 'none';
++    wrap.innerHTML = active.map(r => {
++      const href = r.peerId ? `live.html?peer=${encodeURIComponent(r.peerId)}&room=${r.id}` : `live.html?room=${r.id}`;
++      return `<div class="live-room-card">
++        <div class="live-pill">LIVE</div>
++        <h4>${APP.escapeHtml(r.title)}</h4>
++        <p class="muted" style="font-size:.85rem">🎤 ${APP.escapeHtml(r.host)} · ${APP.escapeHtml(r.type === 'external' ? (r.service || 'External') : 'Camera')}</p>
++        <div style="display:flex;gap:.4rem;margin-top:.6rem;flex-wrap:wrap">
++          <a class="btn btn-primary btn-sm" href="${href}">▶ Watch</a>
++          <button class="btn btn-ghost btn-sm" data-copy-link="${href}">📋 Copy link</button>
++          ${this.currentRoom && this.currentRoom.id === r.id ? `<button class="btn btn-ghost btn-sm" onclick="LIVE.endBroadcast()">⏹ End</button>` : ''}
++        </div>
++      </div>`;
++    }).join('');
++    wrap.querySelectorAll('[data-copy-link]').forEach(b => {
++      b.addEventListener('click', () => {
++        const abs = new URL(b.getAttribute('data-copy-link'), location.href).href;
++        navigator.clipboard.writeText(abs).then(() => APP.toast('Copied', 'success'));
++      });
++    });
++  },
++
++  toEmbedUrl(url) {
++    if (!url) return null;
++    try {
++      const u = new URL(url);
++      if (u.hostname.includes('youtube.com')) {
++        const v = u.searchParams.get('v');
++        if (v) return `https://www.youtube.com/embed/${v}?autoplay=1&rel=0`;
++        if (u.pathname.startsWith('/live/')) return `https://www.youtube.com/embed${u.pathname}?autoplay=1`;
++      }
++      if (u.hostname === 'youtu.be') return `https://www.youtube.com/embed/${u.pathname.slice(1)}?autoplay=1`;
++      if (u.hostname.includes('twitch.tv')) {
++        const path = u.pathname.replace(/^\//, '').split('/')[0];
++        if (path) return `https://player.twitch.tv/?channel=${path}&parent=${location.hostname}&autoplay=true`;
++      }
++      if (u.hostname.includes('facebook.com') || u.hostname.includes('fb.watch')) {
++        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&autoplay=true`;
++      }
++      if (u.hostname.includes('vimeo.com')) {
++        const id = u.pathname.split('/').filter(Boolean).pop();
++        return `https://player.vimeo.com/video/${id}?autoplay=1`;
++      }
++      return url;
++    } catch { return url; }
++  }
++};
++
++LIVE.loadRooms();
++window.LIVE = LIVE;
+diff --git a/js/supabase-sync.js b/js/supabase-sync.js
+new file mode 100644
+index 0000000..09fae2e
+--- /dev/null
++++ b/js/supabase-sync.js
+@@ -0,0 +1,183 @@
++/* =========================================================
++   Gen Z Volleyball Malawi — Supabase Sync (Simplified)
++   Cross-device real-time sync. Just paste your URL + key.
++   ========================================================= */
++
++const SYNC = {
++  client: null,
++  ready: false,
++  config: {
++    // 👇 PASTE YOUR CREDENTIALS HERE
++    url: 'https://ofvolzlpgfvhuluezrid.supabase.co',
++    anonKey: '',  // ← paste your "anon public" key from Supabase Settings → API
++  },
++
++  isConfigured() {
++    // Key can come from the config object OR from localStorage (saved via setup page)
++    const key = this.config.anonKey || localStorage.getItem('gzvm_anon_key');
++    return !!(this.config.url && key);
++  },
++
++  getKey() {
++    return this.config.anonKey || localStorage.getItem('gzvm_anon_key');
++  },
++
++  async init() {
++    if (this._inited) return;
++    this._inited = true;
++    if (!this.isConfigured()) {
++      console.info('[SYNC] No anon key yet. Running in localStorage-only mode.');
++      return;
++    }
++    try {
++      if (!window.supabase) {
++        await new Promise((resolve, reject) => {
++          const s = document.createElement('script');
++          s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
++          s.onload = resolve;
++          s.onerror = reject;
++          document.head.appendChild(s);
++        });
++      }
++      this.client = window.supabase.createClient(this.config.url, this.getKey());
++      this.ready = true;
++      console.info('[SYNC] ✅ Connected to Supabase');
++
++      // Pull all existing data on startup
++      await this.pullAll();
++
++      // Subscribe to changes
++      this.client
++        .channel('gzvm-changes')
++        .on('postgres_changes', { event: '*', schema: 'public', table: 'gzvm_sync' },
++          payload => this.handleChange(payload))
++        .subscribe();
++
++      // Hook APP.save() to auto-sync
++      this.installSaveHook();
++
++      // Refresh UI
++      window.dispatchEvent(new CustomEvent('gzvm:refresh'));
++    } catch (err) {
++      console.error('[SYNC] Failed to connect:', err);
++    }
++  },
++
++  // ---------- PULL ALL DATA ON STARTUP ----------
++  async pullAll() {
++    if (!this.ready) return;
++    try {
++      const { data, error } = await this.client.from('gzvm_sync').select('*');
++      if (error) throw error;
++      if (!data) return;
++
++      // Group by entity_type and merge into APP.data
++      data.forEach(row => {
++        const type = row.entity_type;
++        if (!APP.data[type]) return;
++        if (Array.isArray(APP.data[type])) {
++          // Replace if exists, otherwise add
++          const idx = APP.data[type].findIndex(x => x.id === row.entity_id);
++          if (idx >= 0) APP.data[type][idx] = row.data;
++          else APP.data[type].push(row.data);
++        } else {
++          APP.data[type] = row.data;
++        }
++      });
++      APP.save();
++      console.info(`[SYNC] Pulled ${data.length} entities from Supabase`);
++    } catch (e) { console.warn('[SYNC] pull failed', e); }
++  },
++
++  // ---------- PUSH ----------
++  async push(entityType, entity) {
++    if (!this.ready || !entity || !entity.id) return;
++    try {
++      await this.client.from('gzvm_sync').upsert({
++        entity_type: entityType,
++        entity_id: entity.id,
++        data: entity,
++        updated_at: new Date().toISOString()
++      }, { onConflict: 'entity_type,entity_id' });
++    } catch (e) { console.warn('[SYNC] push failed', e); }
++  },
++
++  async pushAll(data) {
++    if (!this.ready) return;
++    const rows = [];
++    for (const [type, list] of Object.entries(data)) {
++      if (!Array.isArray(list)) continue;
++      list.forEach(entity => {
++        if (entity && entity.id) {
++          rows.push({
++            entity_type: type,
++            entity_id: entity.id,
++            data: entity,
++            updated_at: new Date().toISOString()
++          });
++        }
++      });
++    }
++    if (!rows.length) return;
++    try {
++      // Push in batches of 100
++      for (let i = 0; i < rows.length; i += 100) {
++        const batch = rows.slice(i, i + 100);
++        const { error } = await this.client.from('gzvm_sync').upsert(batch, { onConflict: 'entity_type,entity_id' });
++        if (error) throw error;
++      }
++    } catch (e) { console.warn('[SYNC] pushAll failed', e); }
++  },
++
++  // ---------- FILE UPLOADS ----------
++  async uploadFile(bucket, file, pathPrefix = '') {
++    if (!this.ready || !file) return null;
++    try {
++      const ext = file.name.split('.').pop();
++      const path = `${pathPrefix}/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
++      const { error } = await this.client.storage.from(bucket).upload(path, file, { upsert: true });
++      if (error) throw error;
++      const { data: urlData } = this.client.storage.from(bucket).getPublicUrl(path);
++      return urlData.publicUrl;
++    } catch (e) { console.warn('[SYNC] upload failed', e); return null; }
++  },
++
++  // ---------- REALTIME ----------
++  handleChange(payload) {
++    const { eventType, new: newRow, old: oldRow } = payload;
++    const row = newRow || oldRow;
++    if (!row) return;
++
++    const { entity_type, entity_id, data } = row;
++    if (!APP.data[entity_type]) return;
++
++    const list = APP.data[entity_type];
++    const idx = list.findIndex(x => x.id === entity_id);
++
++    if (eventType === 'DELETE') {
++      if (idx >= 0) list.splice(idx, 1);
++    } else if (idx >= 0) {
++      list[idx] = { ...list[idx], ...data };
++    } else {
++      list.push(data);
++    }
++    APP.save();
++    window.dispatchEvent(new CustomEvent('gzvm:sync', { detail: { type: entity_type, eventType } }));
++    window.dispatchEvent(new CustomEvent('gzvm:refresh'));
++  },
++
++  installSaveHook() {
++    if (APP.__syncHooked) return;
++    APP.__syncHooked = true;
++    const originalSave = APP.save.bind(APP);
++    APP.save = function () {
++      originalSave();
++      clearTimeout(APP.__syncTimer);
++      APP.__syncTimer = setTimeout(() => {
++        SYNC.pushAll(APP.data);
++      }, 1000); // debounce
++    };
++  }
++};
++
++window.SYNC = SYNC;
+diff --git a/leaderboard.html b/leaderboard.html
+index 793530b..b4cbe86 100644
+--- a/leaderboard.html
++++ b/leaderboard.html
+@@ -8,6 +8,8 @@
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="css/styles.css">
++<link rel="stylesheet" href="css/extras.css">
++<style>#sync-banner{display:none!important}</style>
+ <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%90%3C/text%3E%3C/svg%3E">
+ </head>
+ <body>
+@@ -93,9 +95,10 @@
+ 
+ <footer class="footer"></footer>
+ 
+-<script src="js/app.js"></script>
+-<script src="js/supabase-sync.js"></script>
+ <script src="js/livestream.js"></script>
++<script src="js/supabase-sync.js"></script>
++<script src="js/app.js"></script>
++<script src="js/extras.js"></script>
+ <script>
+ APP.renderTicker();
+ APP.attachTilt();
+diff --git a/live.html b/live.html
+index a8b2e8a..02a854e 100644
+--- a/live.html
++++ b/live.html
+@@ -8,6 +8,8 @@
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="css/styles.css">
++<link rel="stylesheet" href="css/extras.css">
++<style>#sync-banner{display:none!important}</style>
+ <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%90%3C/text%3E%3C/svg%3E">
+ </head>
+ <body>
+@@ -98,9 +100,10 @@
+ 
+ <footer class="footer"></footer>
+ 
+-<script src="js/app.js"></script>
+-<script src="js/supabase-sync.js"></script>
+ <script src="js/livestream.js"></script>
++<script src="js/supabase-sync.js"></script>
++<script src="js/app.js"></script>
++<script src="js/extras.js"></script>
+ <script>
+ APP.renderTicker();
+ APP.attachTilt();
+@@ -295,20 +298,22 @@ function init() {
+   renderLiveRoomsStrip();
+   LIVE.listenToRooms(renderLiveRoomsStrip);
+ 
+-  // 1) ?room=ID → show that specific live room
++  // 1) ?peer=ID or ?room=ID → join that live room
+   const params = new URLSearchParams(location.search);
++  const peerId = params.get('peer');
+   const roomId = params.get('room');
+-  if (roomId) {
+-    const room = LIVE.rooms.find(r => r.id === roomId && r.active);
+-    if (room) {
+-      if (room.type === 'external' && room.externalUrl) {
+-        playExternal(room.externalUrl, room.title, room.service);
+-        return;
+-      }
+-      // P2P room: show join instructions
+-      showP2PJoinPanel(room);
++  if (peerId || roomId) {
++    const room = LIVE.rooms.find(r => (peerId && r.peerId === peerId) || (r.id === roomId && r.active));
++    if (room && room.type === 'external' && room.externalUrl) {
++      playExternal(room.externalUrl, room.title, room.service);
+       return;
+     }
++    const pid = peerId || room?.peerId;
++    if (pid) {
++      joinPeerStream(pid, room);
++      return;
++    }
++    if (room) { showP2PJoinPanel(room); return; }
+   }
+ 
+   // 2) Is there a real match live? Show it
+@@ -346,6 +351,37 @@ function playExternal(url, title, service) {
+   clearInterval(autoplayTimer);
+ }
+ 
++async function joinPeerStream(peerId, room) {
++  const player = document.getElementById('main-player');
++  clearPlayer();
++  document.getElementById('player-placeholder').style.display = 'none';
++  let video = document.getElementById('peer-watch-video');
++  if (!video) {
++    video = document.createElement('video');
++    video.id = 'peer-watch-video';
++    video.className = 'video-preview';
++    video.autoplay = true;
++    video.playsInline = true;
++    video.controls = true;
++    video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:2';
++    player.appendChild(video);
++  }
++  document.getElementById('player-overlay').style.display = 'flex';
++  document.getElementById('overlay-title').textContent = room?.title || 'Live camera';
++  document.getElementById('overlay-counter').textContent = 'Connecting…';
++  document.getElementById('stream-badge').innerHTML = '<span class="live-dot"></span> ON AIR';
++  document.getElementById('stream-badge').style.background = 'var(--c-danger)';
++  document.getElementById('stream-title').textContent = room?.title || 'Live';
++  try {
++    await LIVE.watchPeer(peerId, video);
++    document.getElementById('overlay-counter').textContent = '● LIVE';
++  } catch (e) {
++    document.getElementById('player-placeholder').style.display = 'flex';
++    document.getElementById('player-placeholder').innerHTML = `<div class="icon">📡</div><h3 style="color:white">Could not join</h3><p>${APP.escapeHtml(e.message || 'Try the link again')}</p>`;
++    video.remove();
++  }
++}
++
+ function showP2PJoinPanel(room) {
+   const player = document.getElementById('main-player');
+   clearPlayer();
+diff --git a/locker.html b/locker.html
+index b137b16..da4d1c6 100644
+--- a/locker.html
++++ b/locker.html
+@@ -8,6 +8,8 @@
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="css/styles.css">
++<link rel="stylesheet" href="css/extras.css">
++<style>#sync-banner{display:none!important}</style>
+ <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%90%3C/text%3E%3C/svg%3E">
+ </head>
+ <body>
+@@ -170,9 +172,10 @@
+   </div>
+ </div>
+ 
+-<script src="js/app.js"></script>
+-<script src="js/supabase-sync.js"></script>
+ <script src="js/livestream.js"></script>
++<script src="js/supabase-sync.js"></script>
++<script src="js/app.js"></script>
++<script src="js/extras.js"></script>
+ <script>
+ APP.renderTicker();
+ APP.attachTilt();
+diff --git a/login.html b/login.html
+index 7cc0cfb..ae2988d 100644
+--- a/login.html
++++ b/login.html
+@@ -8,6 +8,8 @@
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="css/styles.css">
++<link rel="stylesheet" href="css/extras.css">
++<style>#sync-banner{display:none!important}</style>
+ <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%90%3C/text%3E%3C/svg%3E">
+ </head>
+ <body>
+@@ -96,9 +98,10 @@
+ 
+ <footer class="footer"></footer>
+ 
+-<script src="js/app.js"></script>
+-<script src="js/supabase-sync.js"></script>
+ <script src="js/livestream.js"></script>
++<script src="js/supabase-sync.js"></script>
++<script src="js/app.js"></script>
++<script src="js/extras.js"></script>
+ <script>
+ APP.renderTicker();
+ APP.attachTilt();
+diff --git a/matches.html b/matches.html
+index 31956bb..68000a1 100644
+--- a/matches.html
++++ b/matches.html
+@@ -8,6 +8,8 @@
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="css/styles.css">
++<link rel="stylesheet" href="css/extras.css">
++<style>#sync-banner{display:none!important}</style>
+ <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%90%3C/text%3E%3C/svg%3E">
+ </head>
+ <body>
+@@ -116,9 +118,10 @@
+   </div>
+ </div>
+ 
+-<script src="js/app.js"></script>
+-<script src="js/supabase-sync.js"></script>
+ <script src="js/livestream.js"></script>
++<script src="js/supabase-sync.js"></script>
++<script src="js/app.js"></script>
++<script src="js/extras.js"></script>
+ <script>
+ APP.renderTicker();
+ APP.attachTilt();
+diff --git a/register.html b/register.html
+index abcacb5..25d02c3 100644
+--- a/register.html
++++ b/register.html
+@@ -8,6 +8,8 @@
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="css/styles.css">
++<link rel="stylesheet" href="css/extras.css">
++<style>#sync-banner{display:none!important}</style>
+ <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%90%3C/text%3E%3C/svg%3E">
+ </head>
+ <body>
+@@ -215,9 +217,10 @@
+ 
+ <footer class="footer"></footer>
+ 
+-<script src="js/app.js"></script>
+-<script src="js/supabase-sync.js"></script>
+ <script src="js/livestream.js"></script>
++<script src="js/supabase-sync.js"></script>
++<script src="js/app.js"></script>
++<script src="js/extras.js"></script>
+ <script>
+ APP.renderTicker();
+ APP.attachTilt();
+diff --git a/supabase-sync (2).js b/supabase-sync (2).js
+index 77838a5..a6a184e 100644
+--- a/supabase-sync (2).js	
++++ b/supabase-sync (2).js	
+@@ -26,7 +26,7 @@ const SYNC = {
+     if (!this.isConfigured()) {
+       console.info('[SYNC] No anon key yet. Running in localStorage-only mode.');
+       // Show a helpful banner telling the user what to do
+-      this.showSetupBanner();
++      /* banner removed */
+       return;
+     }
+     try {
+@@ -60,7 +60,7 @@ const SYNC = {
+       window.dispatchEvent(new CustomEvent('gzvm:refresh'));
+     } catch (err) {
+       console.error('[SYNC] Failed to connect:', err);
+-      this.showSetupBanner('Connection failed — check your URL and anon key');
++      /* banner removed */
+     }
+   },
+ 
+diff --git a/sync-setup.html b/sync-setup.html
+index 008adac..3dd0c93 100644
+--- a/sync-setup.html
++++ b/sync-setup.html
+@@ -2,282 +2,11 @@
+ <html lang="en">
+ <head>
+ <meta charset="UTF-8">
+-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+-<title>Sync Setup — Gen Z Volleyball Malawi</title>
+-<link rel="preconnect" href="https://fonts.googleapis.com">
+-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+-<link rel="stylesheet" href="css/styles.css">
+-<style>
+-  body { padding: 0; }
+-  .setup-wrap {
+-    max-width: 760px;
+-    margin: 3rem auto;
+-    padding: 0 1rem;
+-  }
+-  .setup-card {
+-    background: linear-gradient(180deg, var(--c-card) 0%, var(--c-card-2) 100%);
+-    border-radius: var(--radius-lg);
+-    padding: 2.5rem;
+-    box-shadow: var(--shadow-3d);
+-    border: 1px solid rgba(255,255,255,0.06);
+-  }
+-  .step {
+-    display: flex; gap: 1rem; align-items: flex-start;
+-    padding: 1.2rem;
+-    background: var(--c-deeper);
+-    border-radius: 12px;
+-    margin-bottom: 0.8rem;
+-    border-left: 4px solid var(--c-primary);
+-  }
+-  .step-num {
+-    flex-shrink: 0;
+-    width: 36px; height: 36px;
+-    border-radius: 50%;
+-    background: var(--gradient-1);
+-    color: var(--c-deep);
+-    display: grid; place-items: center;
+-    font-family: var(--font-display);
+-    font-size: 1.2rem;
+-  }
+-  .step-body { flex: 1; }
+-  .step-body h3 { margin-bottom: 0.3rem; color: var(--c-text); }
+-  .step-body p { color: var(--c-muted); font-size: 0.92rem; line-height: 1.5; }
+-  .step-body code, .step-body pre {
+-    background: #000;
+-    color: #00ff88;
+-    padding: 0.5rem 0.7rem;
+-    border-radius: 6px;
+-    font-size: 0.8rem;
+-    display: block;
+-    margin: 0.5rem 0;
+-    overflow-x: auto;
+-    white-space: pre-wrap;
+-    word-break: break-all;
+-  }
+-  .key-input {
+-    width: 100%;
+-    padding: 0.8rem;
+-    background: #000;
+-    color: #00ff88;
+-    border: 2px solid var(--c-primary);
+-    border-radius: 8px;
+-    font-family: 'Courier New', monospace;
+-    font-size: 0.85rem;
+-    margin: 0.5rem 0;
+-  }
+-  .key-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(255,59,107,0.3); }
+-  .actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+-  .status {
+-    padding: 1rem;
+-    border-radius: 10px;
+-    margin-top: 1rem;
+-    display: none;
+-  }
+-  .status.success { display: block; background: rgba(25,210,124,0.1); color: var(--c-success); border-left: 4px solid var(--c-success); }
+-  .status.error { display: block; background: rgba(255,77,77,0.1); color: var(--c-danger); border-left: 4px solid var(--c-danger); }
+-  .copy-btn { font-size: 0.8rem; padding: 0.3rem 0.6rem; margin-left: 0.4rem; }
+-</style>
++<meta http-equiv="refresh" content="0; url=index.html">
++<title>Redirecting…</title>
++<script>location.replace('index.html');</script>
+ </head>
+ <body>
+-
+-<nav class="nav"></nav>
+-
+-<main>
+-  <div class="setup-wrap">
+-    <div class="text-center">
+-      <span class="tag tag-teal">⚙️ SETUP</span>
+-      <h1 style="margin-top:0.5rem;">Turn On <span class="gradient-text">Cross-Device Sync</span></h1>
+-      <p class="muted">Just 3 quick steps. Takes about 2 minutes.</p>
+-    </div>
+-
+-    <div class="setup-card">
+-      <div class="step">
+-        <div class="step-num">1</div>
+-        <div class="step-body">
+-          <h3>Open your Supabase project</h3>
+-          <p>Click the button below — it opens your Supabase dashboard. Go to <strong>SQL Editor</strong> in the left sidebar, then click <strong>New query</strong>.</p>
+-          <a href="https://supabase.com/dashboard/project/ofvolzlpgfvhuluezrid" target="_blank" class="btn btn-primary btn-sm" style="margin-top:0.4rem;">Open Supabase Dashboard ↗</a>
+-        </div>
+-      </div>
+-
+-      <div class="step">
+-        <div class="step-num">2</div>
+-        <div class="step-body">
+-          <h3>Run the setup SQL</h3>
+-          <p>Open the file <code>supabase-setup.sql</code> in your project folder, copy its entire contents, paste into the SQL editor, then click <strong>Run</strong> (or Ctrl+Enter).</p>
+-          <details>
+-            <summary style="cursor:pointer; color: var(--c-accent);">📄 Show me the SQL</summary>
+-            <button class="btn btn-ghost btn-sm copy-btn" id="copy-sql" style="margin-top:0.5rem;">📋 Copy SQL</button>
+-<pre id="sql-content">-- ============================================================
+--- Gen Z Volleyball Malawi — Supabase Setup
+--- ============================================================
+-
+--- Main sync table
+-create table if not exists public.gzvm_sync (
+-  id bigserial primary key,
+-  entity_type text not null,
+-  entity_id text not null,
+-  data jsonb not null,
+-  updated_at timestamptz not null default now(),
+-  unique (entity_type, entity_id)
+-);
+-
+-create index if not exists gzvm_sync_entity_idx
+-  on public.gzvm_sync (entity_type, entity_id);
+-
+-alter table public.gzvm_sync enable row level security;
+-
+-drop policy if exists "anon read all" on public.gzvm_sync;
+-create policy "anon read all"
+-  on public.gzvm_sync for select
+-  to anon, authenticated
+-  using (true);
+-
+-drop policy if exists "anon insert all" on public.gzvm_sync;
+-create policy "anon insert all"
+-  on public.gzvm_sync for insert
+-  to anon, authenticated
+-  with check (true);
+-
+-drop policy if exists "anon update all" on public.gzvm_sync;
+-create policy "anon update all"
+-  on public.gzvm_sync for update
+-  to anon, authenticated
+-  using (true)
+-  with check (true);
+-
+-drop policy if exists "anon delete all" on public.gzvm_sync;
+-create policy "anon delete all"
+-  on public.gzvm_sync for delete
+-  to anon, authenticated
+-  using (true);
+-
+-alter publication supabase_realtime add table public.gzvm_sync;
+-
+--- Storage buckets
+-insert into storage.buckets (id, name, public)
+-values
+-  ('profiles', 'profiles', true),
+-  ('medical', 'medical', true),
+-  ('highlights', 'highlights', true)
+-on conflict (id) do nothing;
+-
+-drop policy if exists "public read profiles" on storage.objects;
+-create policy "public read profiles"
+-  on storage.objects for select
+-  to anon, authenticated
+-  using (bucket_id in ('profiles', 'medical', 'highlights'));
+-
+-drop policy if exists "public write profiles" on storage.objects;
+-create policy "public write profiles"
+-  on storage.objects for insert
+-  to anon, authenticated
+-  with check (bucket_id in ('profiles', 'medical', 'highlights'));
+-
+-drop policy if exists "public update profiles" on storage.objects;
+-create policy "public update profiles"
+-  on storage.objects for update
+-  to anon, authenticated
+-  using (bucket_id in ('profiles', 'medical', 'highlights'));</pre>
+-          </details>
+-        </div>
+-      </div>
+-
+-      <div class="step">
+-        <div class="step-num">3</div>
+-        <div class="step-body">
+-          <h3>Paste your anon key</h3>
+-          <p>Back in Supabase, go to <strong>Settings → API</strong>. Find the section called <strong>Project API keys</strong> and copy the <strong>anon public</strong> key (the long one starting with <code>eyJ</code>). Paste it below:</p>
+-
+-          <input type="text" id="anon-key" class="key-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+-          <div class="actions">
+-            <button class="btn btn-primary" id="test-conn">🔌 Test Connection</button>
+-            <button class="btn btn-accent" id="save-key" disabled>💾 Save & Enable Sync</button>
+-          </div>
+-          <div id="status-msg" class="status"></div>
+-          <p class="muted" style="font-size:0.8rem; margin-top:0.5rem;">
+-            ⓘ Your key is saved only in your browser's localStorage. It's not sent anywhere except Supabase.
+-          </p>
+-        </div>
+-      </div>
+-
+-      <div style="text-align:center; margin-top:2rem;">
+-        <a href="index.html" class="btn btn-ghost">← Back to site</a>
+-      </div>
+-    </div>
+-  </div>
+-</main>
+-
+-<footer class="footer"></footer>
+-
+-<script src="js/app.js"></script>
+-<script src="js/supabase-sync.js"></script>
+-<script>
+-// Populate if already saved
+-const saved = localStorage.getItem('gzvm_anon_key');
+-if (saved) {
+-  document.getElementById('anon-key').value = saved;
+-  document.getElementById('save-key').disabled = false;
+-  // Try connecting right away
+-  (async () => {
+-    try {
+-      const key = saved;
+-      const r = await fetch('https://ofvolzlpgfvhuluezrid.supabase.co/rest/v1/gzvm_sync?select=id&limit=1', {
+-        headers: { 'apikey': key, 'Authorization': 'Bearer ' + key }
+-      });
+-      if (r.ok) {
+-        showStatus('✅ Already connected! Save again to confirm, or change the key below.', 'success');
+-      } else if (r.status === 404) {
+-        showStatus('⚠️ Key works but the table doesn\'t exist yet. Run the SQL (step 2) first.', 'error');
+-      }
+-    } catch {}
+-  })();
+-}
+-
+-document.getElementById('anon-key').addEventListener('input', e => {
+-  const v = e.target.value.trim();
+-  document.getElementById('save-key').disabled = v.length < 50;
+-});
+-
+-const status = document.getElementById('status-msg');
+-function showStatus(msg, type) {
+-  status.className = 'status ' + type;
+-  status.textContent = msg;
+-}
+-
+-document.getElementById('copy-sql').addEventListener('click', () => {
+-  navigator.clipboard.writeText(document.getElementById('sql-content').textContent);
+-  showStatus('✅ SQL copied to clipboard. Paste it in your Supabase SQL Editor and click Run.', 'success');
+-});
+-
+-document.getElementById('test-conn').addEventListener('click', async () => {
+-  const key = document.getElementById('anon-key').value.trim();
+-  if (!key) return showStatus('❌ Paste your anon key first', 'error');
+-  showStatus('🔄 Testing connection…', 'success');
+-  try {
+-    const r = await fetch('https://ofvolzlpgfvhuluezrid.supabase.co/rest/v1/gzvm_sync?select=id&limit=1', {
+-      headers: { 'apikey': key, 'Authorization': 'Bearer ' + key }
+-    });
+-    if (r.ok) {
+-      showStatus('✅ Connection works! Click "Save & Enable Sync" to finish.', 'success');
+-    } else if (r.status === 404) {
+-      showStatus('⚠️ Connected, but the table doesn\'t exist yet. Make sure you ran the SQL (step 2).', 'error');
+-    } else {
+-      const t = await r.text();
+-      showStatus('❌ Error: ' + t.slice(0, 200), 'error');
+-    }
+-  } catch (e) {
+-    showStatus('❌ Network error: ' + e.message, 'error');
+-  }
+-});
+-
+-document.getElementById('save-key').addEventListener('click', () => {
+-  const key = document.getElementById('anon-key').value.trim();
+-  localStorage.setItem('gzvm_anon_key', key);
+-  showStatus('✅ Saved! Reloading…', 'success');
+-  setTimeout(() => location.href = 'index.html', 1000);
+-});
+-</script>
++<p><a href="index.html">Continue to Gen Z Volleyball Malawi</a></p>
+ </body>
+ </html>
+diff --git a/teams.html b/teams.html
+index 2acfbed..d541f2e 100644
+--- a/teams.html
++++ b/teams.html
+@@ -8,6 +8,8 @@
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="css/styles.css">
++<link rel="stylesheet" href="css/extras.css">
++<style>#sync-banner{display:none!important}</style>
+ <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%90%3C/text%3E%3C/svg%3E">
+ </head>
+ <body>
+@@ -62,9 +64,10 @@
+   </div>
+ </div>
+ 
+-<script src="js/app.js"></script>
+-<script src="js/supabase-sync.js"></script>
+ <script src="js/livestream.js"></script>
++<script src="js/supabase-sync.js"></script>
++<script src="js/app.js"></script>
++<script src="js/extras.js"></script>
+ <script>
+ APP.renderTicker();
+ APP.attachTilt();
+diff --git a/training.html b/training.html
+index f80c808..fdbe5fc 100644
+--- a/training.html
++++ b/training.html
+@@ -8,6 +8,8 @@
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="css/styles.css">
++<link rel="stylesheet" href="css/extras.css">
++<style>#sync-banner{display:none!important}</style>
+ <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%90%3C/text%3E%3C/svg%3E">
+ </head>
+ <body>
+@@ -234,9 +236,10 @@
+ 
+ <footer class="footer"></footer>
+ 
+-<script src="js/app.js"></script>
+-<script src="js/supabase-sync.js"></script>
+ <script src="js/livestream.js"></script>
++<script src="js/supabase-sync.js"></script>
++<script src="js/app.js"></script>
++<script src="js/extras.js"></script>
+ <script>
+ APP.renderTicker();
+ APP.attachTilt();
