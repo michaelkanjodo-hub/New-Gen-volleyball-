@@ -6,9 +6,9 @@
 <title>Login — Gen Z Volleyball Malawi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%90%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230b1020'/%3E%3Ccircle cx='50' cy='50' r='40' fill='%23e8b33a'/%3E%3Cpath d='M35 50 Q50 30 65 50 Q50 70 35 50 Z' fill='%230b1020'/%3E%3C/svg%3E">
 </head>
 <body>
 
@@ -18,19 +18,19 @@
 
 <main>
   <section>
-    <div class="container">
-      <div class="tabs" style="justify-content:center;">
+    <div class="container" style="max-width: 700px; margin: 0 auto;">
+      <div class="tabs" style="justify-content:center; margin-bottom:var(--space-8);">
         <button class="tab active" data-au="login">Login</button>
-        <button class="tab" data-au="signup">Sign Up</button>
+        <button class="tab" data-au="signup">Create Account</button>
       </div>
 
-      <div class="grid-2" style="max-width: 900px; margin: 0 auto;">
+      <div class="grid-2" style="max-width: 700px; margin: 0 auto;">
         <!-- LOGIN -->
         <div class="tab-content active" id="au-login">
-          <div class="card card-3d">
-            <h3>Welcome Back 🏐</h3>
+          <div class="card">
+            <h3>Welcome Back</h3>
             <p class="muted" style="font-size:0.9rem;">Login to access your dashboard, training tracker, and locker room.</p>
-            <form id="login-form" style="margin-top:1rem;">
+            <form id="login-form" style="margin-top:var(--space-4);">
               <div class="form-group">
                 <label>Email</label>
                 <input type="email" name="email" class="form-control" required>
@@ -39,32 +39,32 @@
                 <label>Password</label>
                 <input type="password" name="password" class="form-control" required>
               </div>
-              <button type="submit" class="btn btn-primary btn-block">Login →</button>
+              <button type="submit" class="btn btn-primary btn-block">Login &rarr;</button>
             </form>
-            <p class="muted text-center" style="font-size:0.85rem; margin-top:1rem;">No account yet? <a href="#" id="goto-signup">Sign up</a></p>
+            <p class="muted text-center" style="font-size:0.85rem; margin-top:var(--space-4);">No account yet? <a href="#" id="goto-signup">Create account</a></p>
           </div>
         </div>
 
         <!-- SIGNUP -->
         <div class="tab-content" id="au-signup">
-          <div class="card card-3d">
+          <div class="card">
             <h3>Create Account</h3>
             <p class="muted" style="font-size:0.9rem;">Players, coaches, and team captains all need an account.</p>
-            <form id="signup-form" style="margin-top:1rem;">
+            <form id="signup-form" style="margin-top:var(--space-4);">
               <div class="form-group">
-                <label>Full Name *</label>
+                <label>Full Name <span class="muted" style="font-weight:400;">*</span></label>
                 <input type="text" name="name" class="form-control" required>
               </div>
               <div class="form-group">
-                <label>Email *</label>
+                <label>Email <span class="muted" style="font-weight:400;">*</span></label>
                 <input type="email" name="email" class="form-control" required>
               </div>
               <div class="form-group">
-                <label>Password *</label>
+                <label>Password <span class="muted" style="font-weight:400;">*</span></label>
                 <input type="password" name="password" class="form-control" minlength="6" required>
               </div>
               <div class="form-group">
-                <label>Role *</label>
+                <label>Role <span class="muted" style="font-weight:400;">*</span></label>
                 <select name="role" class="form-control" required>
                   <option value="">— Select —</option>
                   <option value="player">Player</option>
@@ -74,21 +74,21 @@
                   <option value="fan">Fan / Supporter</option>
                 </select>
               </div>
-              <button type="submit" class="btn btn-primary btn-block">Create Account →</button>
+              <button type="submit" class="btn btn-primary btn-block">Create Account &rarr;</button>
             </form>
-            <p class="muted text-center" style="font-size:0.85rem; margin-top:1rem;">Already have an account? <a href="#" id="goto-login">Login</a></p>
+            <p class="muted text-center" style="font-size:0.85rem; margin-top:var(--space-4);">Already have an account? <a href="#" id="goto-login">Login</a></p>
           </div>
         </div>
       </div>
 
-      <div class="card" style="max-width: 900px; margin: 1.5rem auto 0;">
-        <h3>👥 Existing Coaches (for demo)</h3>
+      <div class="card" style="max-width: 700px; margin: var(--space-8) auto 0;">
+        <h3>Existing Coaches (for demo)</h3>
         <p class="muted" style="font-size:0.9rem;">Use these to test the Coach Locker Room (or sign up your own coach account):</p>
-        <ul style="margin-top:0.5rem; font-size:0.9rem;">
-          <li>📧 <strong>coach.mary@genzvolleyball.mw</strong> / <code>coach123</code></li>
-          <li>📧 <strong>coach.joseph@genzvolleyball.mw</strong> / <code>coach123</code></li>
+        <ul style="margin-top:var(--space-3); font-size:0.9rem; list-style:none; padding:0;">
+          <li style="margin-bottom:var(--space-2);">📧 <strong>coach.mary@genzvolleyball.mw</strong> / <code style="font-size:0.85rem;">coach123</code></li>
+          <li style="margin-bottom:var(--space-2);">📧 <strong>coach.joseph@genzvolleyball.mw</strong> / <code style="font-size:0.85rem;">coach123</code></li>
         </ul>
-        <button class="btn btn-sm btn-accent" id="seed-coaches" style="margin-top:0.5rem;">⚙️ Seed demo coach accounts</button>
+        <button class="btn btn-sm btn-accent" id="seed-coaches" style="margin-top:var(--space-3);">⚙️ Seed demo coach accounts</button>
       </div>
     </div>
   </section>
@@ -101,7 +101,6 @@
 <script src="js/app.js"></script>
 <script>
 APP.renderTicker();
-APP.attachTilt();
 
 function switchAuth(tab) {
   document.querySelectorAll('.tab[data-au]').forEach(x => x.classList.remove('active'));
@@ -135,7 +134,7 @@ document.getElementById('signup-form').addEventListener('submit', e => {
       password: fd.get('password'),
       role: fd.get('role')
     });
-    APP.toast(`Account created! Welcome, ${user.name} 🎉`, 'success');
+    APP.toast(`Account created! Welcome, ${user.name}`, 'success');
     setTimeout(() => location.href = 'index.html', 600);
   } catch (err) {
     APP.toast(err.message, 'error');

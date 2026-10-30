@@ -6,9 +6,9 @@
 <title>Leaderboard — Gen Z Volleyball Malawi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%90%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230b1020'/%3E%3Ccircle cx='50' cy='50' r='40' fill='%23e8b33a'/%3E%3Cpath d='M35 50 Q50 30 65 50 Q50 70 35 50 Z' fill='%230b1020'/%3E%3C/svg%3E">
 </head>
 <body>
 
@@ -17,10 +17,10 @@
 <div class="ticker"><div class="ticker-track container"></div></div>
 
 <main>
-  <section class="hero" style="padding:2rem 0;">
+  <section class="hero">
     <div class="container">
-      <span class="tag tag-yellow">🏆 RANKINGS</span>
-      <h1>Top <span class="gradient-text">Players</span></h1>
+      <span class="tag tag-yellow">Rankings</span>
+      <h1>Top Players</h1>
       <p>Ranked by overall performance, MVPs, and consistency across the season. Updated after every match.</p>
     </div>
   </section>
@@ -35,9 +35,9 @@
         <button class="tab" data-rank="blocker">Blockers</button>
       </div>
 
-      <div class="grid-2" style="margin-bottom:1.5rem;">
+      <div class="grid-2" style="margin-bottom:var(--space-6);">
         <div>
-          <label style="font-size:0.85rem; color: var(--c-muted); font-weight: 600;">SORT BY</label>
+          <label style="font-size:0.85rem; color: var(--c-text-soft); font-weight: 700;">Sort by</label>
           <select id="sort-by" class="form-control">
             <option value="points">Total Points</option>
             <option value="mvps">MVPs</option>
@@ -48,7 +48,7 @@
           </select>
         </div>
         <div>
-          <label style="font-size:0.85rem; color: var(--c-muted); font-weight: 600;">SEARCH</label>
+          <label style="font-size:0.85rem; color: var(--c-text-soft); font-weight: 700;">Search</label>
           <input type="text" id="search" class="form-control" placeholder="Player or team name…">
         </div>
       </div>
@@ -74,8 +74,8 @@
           <tbody id="lb-body"></tbody>
         </table>
       </div>
-      <p id="lb-empty" class="text-center muted" style="margin-top:1.5rem; display:none;">
-        No players yet. <a href="register.html">Register your team</a> to populate the leaderboard.
+      <p id="lb-empty" class="text-center muted" style="margin-top:var(--space-6); display:none;">
+        No players yet. <a href="register.html">Register your team &rarr;</a> to populate the leaderboard.
       </p>
     </div>
   </section>
@@ -83,8 +83,8 @@
   <section>
     <div class="container">
       <div class="section-title">
-        <span class="badge" style="background: var(--c-accent); color: var(--c-deep);">⭐ TOP 3</span>
-        <h2>Podium</h2>
+        <span class="badge tag-accent">Podium</span>
+        <h2>Top 3</h2>
       </div>
       <div class="grid-3" id="podium"></div>
     </div>
@@ -98,7 +98,6 @@
 <script src="js/app.js"></script>
 <script>
 APP.renderTicker();
-APP.attachTilt();
 
 let currentFilter = 'all';
 
@@ -140,7 +139,7 @@ function renderLeaderboard() {
   empty.style.display = 'none';
 
   if (!players.length) {
-    tbody.innerHTML = '<tr><td colspan="12" class="text-center muted" style="padding:2rem;">No players match your filters</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="12" class="text-center muted" style="padding:var(--space-8);">No players match your filters</td></tr>';
     return;
   }
 
@@ -148,22 +147,22 @@ function renderLeaderboard() {
     const r = i + 1;
     const cls = r === 1 ? 'rank-1' : r === 2 ? 'rank-2' : r === 3 ? 'rank-3' : 'rank-n';
     const avatar = p.photo
-      ? `<img src="${APP.escapeHtml(p.photo)}" alt="" style="width:36px; height:36px; border-radius:50%; object-fit:cover; vertical-align:middle; margin-right:0.6rem; border: 2px solid var(--c-primary);">`
-      : `<span style="display:inline-block; width:36px; height:36px; line-height:36px; text-align:center; border-radius:50%; background: var(--gradient-2); margin-right:0.6rem; vertical-align:middle;">🏐</span>`;
+      ? `<img src="${APP.escapeHtml(p.photo)}" alt="" style="width:36px; height:36px; border-radius:50%; object-fit:cover; vertical-align:middle; margin-right:var(--space-3); border: 2px solid var(--c-accent);">`
+      : `<span style="display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; line-height:36px; text-align:center; border-radius:50%; background: var(--c-accent); color: var(--c-bg); margin-right:var(--space-3); vertical-align:middle; font-size:0.9rem; font-weight:800;">🏐</span>`;
     return `
       <tr>
         <td><span class="rank-badge ${cls}">${r}</span></td>
         <td>${avatar}<strong>${APP.escapeHtml(p.name)}</strong></td>
         <td>${APP.escapeHtml(p.team || '—')}</td>
-        <td><span class="tag tag-blue">${p.position || '—'}</span></td>
+        <td><span class="tag tag-blue" style="font-size:0.7rem;">${p.position || '—'}</span></td>
         <td>${p.stats.serve || 0}</td>
         <td>${p.stats.spike || 0}</td>
         <td>${p.stats.set || 0}</td>
         <td>${p.stats.block || 0}</td>
         <td>${p.stats.pass || 0}</td>
         <td>${p.stats.dig || 0}</td>
-        <td><strong style="color: var(--c-accent)">${p.total}</strong></td>
-        <td>${p.mvps > 0 ? '⭐ ' + p.mvps : '—'}</td>
+        <td><strong style="color: var(--c-accent);">${p.total}</strong></td>
+        <td>${p.mvps > 0 ? '★ ' + p.mvps : '—'}</td>
       </tr>
     `;
   }).join('');
@@ -175,14 +174,15 @@ function renderLeaderboard() {
   podium.innerHTML = order.map(i => {
     const p = top3[i];
     if (!p) return '<div></div>';
-    const colors = ['linear-gradient(135deg, #c0c0c0, #888)', 'linear-gradient(135deg, #ffd400, #c89b00)', 'linear-gradient(135deg, #cd7f32, #8a4a1f)'];
+    const colors = ['var(--c-text-soft)', 'var(--c-accent)', '#b87a2e'];
+    const medal = i === 0 ? '🥈' : i === 1 ? '🥇' : '🥉';
     return `
-      <div class="card card-3d text-center" style="background: ${colors[i]}; color: var(--c-deep); border:none;">
-        <div style="font-size:3rem;">${i === 0 ? '🥈' : i === 1 ? '🥇' : '🥉'}</div>
-        <h3 style="color: var(--c-deep);">${APP.escapeHtml(p.name)}</h3>
-        <p style="font-weight: 700;">${APP.escapeHtml(p.team || 'Free Agent')}</p>
-        <p style="font-size: 1.4rem; font-family: var(--font-display); margin-top:0.5rem;">${p.total} PTS</p>
-        <p>${p.mvps} MVPs</p>
+      <div class="card text-center" style="background: ${colors[i]}; color: var(--c-bg); border:none;">
+        <div style="font-size:2.5rem; margin-bottom:var(--space-3);">${medal}</div>
+        <h3 style="color: var(--c-bg); margin-bottom:var(--space-2);">${APP.escapeHtml(p.name)}</h3>
+        <p style="font-weight: 700; color: var(--c-bg); margin-bottom:var(--space-3);">${APP.escapeHtml(p.team || 'Free Agent')}</p>
+        <p style="font-size: 1.5rem; font-weight: 800; color: var(--c-bg);">${p.total} PTS</p>
+        <p style="color: var(--c-bg);">${p.mvps} MVPs</p>
       </div>
     `;
   }).join('');

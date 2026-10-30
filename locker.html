@@ -6,9 +6,9 @@
 <title>Coach Locker Room — Gen Z Volleyball Malawi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%90%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230b1020'/%3E%3Ccircle cx='50' cy='50' r='40' fill='%23e8b33a'/%3E%3Cpath d='M35 50 Q50 30 65 50 Q50 70 35 50 Z' fill='%230b1020'/%3E%3C/svg%3E">
 </head>
 <body>
 
@@ -17,135 +17,121 @@
 <div class="ticker"><div class="ticker-track container"></div></div>
 
 <main>
-  <!-- LOGIN GATE -->
-  <div id="locker-gate" class="auth-gate card card-3d" style="display:none;">
-    <div class="icon">🔒</div>
-    <h2>Coach Locker Room</h2>
-    <p class="muted">Restricted area. Coaches and admins only.</p>
-    <p class="muted" style="font-size:0.85rem; margin-top:1rem;">Click below to access the password-protected coach area.</p>
-    <button class="btn btn-primary" id="enter-locker" style="margin-top:1rem;">Enter Locker Room →</button>
-    <p style="font-size:0.8rem; margin-top:0.8rem;" class="muted">Need a coach account? <a href="login.html">Login / Sign up</a></p>
-  </div>
-
-  <!-- LOCKER CONTENT -->
-  <div id="locker-content" style="display:none;">
-    <section class="hero" style="padding:2rem 0;">
+  <div class="container" style="max-width: 900px; margin: 0 auto;">
+    <section class="hero" style="padding:var(--space-8) 0 var(--space-4);">
       <div class="container">
-        <span class="tag tag-pink">🔒 COACHES ONLY</span>
-        <h1>The <span class="gradient-text">Locker Room</span></h1>
-        <p>Strategy videos, private feedback, and team notes. <span class="muted" id="who-am-i"></span></p>
+        <span class="tag tag-teal">Coach Locker Room</span>
+        <h1>Strategy & Feedback</h1>
+        <p>Password-protected area for coaches: share strategy videos, give private player feedback, and manage the roster.</p>
       </div>
     </section>
 
-    <section>
-      <div class="container">
-        <div class="tabs">
-          <button class="tab active" data-lk="strategy">📹 Strategy Videos</button>
-          <button class="tab" data-lk="feedback">💬 Private Feedback</button>
-          <button class="tab" data-lk="roster">👥 Roster</button>
-        </div>
+    <!-- LOCKER GATE -->
+    <div id="locker-gate">
+      <div class="card" style="text-align:center; padding:var(--space-12) var(--space-6);">
+        <div style="font-size:3rem; color:var(--c-text-dim); margin-bottom:var(--space-4);">🔒</div>
+        <h2>Access Required</h2>
+        <p class="muted" style="font-size:0.9rem;">You must log in and enter the coach password to access the locker room.</p>
+        <button id="enter-locker" class="btn btn-primary" style="margin-top:var(--space-4);">Enter Password &rarr;</button>
+        <a href="login.html" class="btn btn-ghost" style="margin-top:var(--space-3);">Login / Sign Up &rarr;</a>
+      </div>
+    </div>
 
-        <!-- STRATEGY VIDEOS -->
-        <div class="tab-content active" id="lk-strategy">
-          <div class="grid-2">
-            <div class="card">
-              <h3>📤 Upload Strategy Video</h3>
-              <form id="strategy-form" style="margin-top:1rem;">
-                <div class="form-group">
-                  <label>Title *</label>
-                  <input type="text" name="title" class="form-control" placeholder="e.g. Rotation Analysis vs Top Spikers" required>
-                </div>
-                <div class="form-group">
-                  <label>Description</label>
-                  <textarea name="description" class="form-control" placeholder="Key takeaways, what to focus on…"></textarea>
-                </div>
-                <div class="form-group">
-                  <label>Video URL or Upload</label>
-                  <input type="url" name="videoUrl" class="form-control" placeholder="https://youtube.com/... or .mp4 link">
-                </div>
-                <div class="form-group">
-                  <label>Or upload video file (mp4)</label>
-                  <label class="file-drop" id="video-drop">
-                    <input type="file" name="videoFile" accept="video/*">
-                    <div>🎥 Click or drag to upload</div>
-                    <small class="muted" id="video-name">No file selected</small>
-                  </label>
-                </div>
-                <div class="form-group">
-                  <label>Tag Players (multi-select)</label>
-                  <select name="taggedPlayers" class="form-control" multiple size="4" id="tagged-players"></select>
-                  <p class="muted" style="font-size:0.8rem; margin-top:0.3rem;">Hold Ctrl/Cmd to select multiple</p>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">📤 Share with Team</button>
-              </form>
-            </div>
+    <!-- LOCKER CONTENT -->
+    <div id="locker-content" style="display:none;">
+      <p id="who-am-i" class="muted" style="font-size:0.85rem; margin-bottom:var(--space-6);"></p>
 
-            <div>
-              <h3 style="margin-bottom:1rem;">📂 Shared Videos</h3>
-              <div id="strategy-list" class="grid-2"></div>
-              <p id="strategy-empty" class="text-center muted">No strategy videos yet. Upload one!</p>
-            </div>
+      <div class="tabs" style="margin-bottom:var(--space-6);">
+        <button class="tab active" data-lk="strategy">Strategy Videos</button>
+        <button class="tab" data-lk="feedback">Player Feedback</button>
+        <button class="tab" data-lk="roster">Team Roster</button>
+      </div>
+
+      <!-- STRATEGY -->
+      <div class="tab-content active" id="lk-strategy">
+        <div class="grid-2" style="margin-bottom:var(--space-6);">
+          <div>
+            <h3 id="strategy-empty" style="display:none;">No strategy videos yet.</h3>
+            <div id="strategy-list"></div>
           </div>
-        </div>
-
-        <!-- PRIVATE FEEDBACK -->
-        <div class="tab-content" id="lk-feedback">
-          <div class="grid-2">
-            <div class="card">
-              <h3>📝 Send Private Feedback</h3>
-              <form id="feedback-form" style="margin-top:1rem;">
-                <div class="form-group">
-                  <label>Player *</label>
-                  <select name="playerId" class="form-control" required id="fb-player"></select>
-                </div>
-                <div class="form-group">
-                  <label>Video Reference (optional)</label>
-                  <select name="videoTitle" class="form-control">
-                    <option value="">— None —</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Feedback Message *</label>
-                  <textarea name="text" class="form-control" rows="5" placeholder="Constructive notes only. Be specific. Encourage first, then improve." required></textarea>
-                </div>
-                <div class="form-group">
-                  <label>Rating (1-5 stars)</label>
-                  <select name="rating" class="form-control">
-                    <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
-                    <option value="4">⭐⭐⭐⭐ Strong</option>
-                    <option value="3" selected>⭐⭐⭐ Solid</option>
-                    <option value="2">⭐⭐ Developing</option>
-                    <option value="1">⭐ Needs work</option>
-                  </select>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Send Feedback</button>
-              </form>
-            </div>
-
-            <div>
-              <h3 style="margin-bottom:1rem;">📬 Feedback History</h3>
-              <div id="feedback-list"></div>
-              <p id="feedback-empty" class="text-center muted">No feedback sent yet.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- ROSTER -->
-        <div class="tab-content" id="lk-roster">
           <div class="card">
-            <h3>👥 Team Roster</h3>
-            <p class="muted" style="font-size:0.9rem;">All registered players across all teams.</p>
-            <div class="table-wrap" style="margin-top:1rem;">
-              <table id="roster-table">
-                <thead><tr><th>#</th><th>Name</th><th>Team</th><th>Pos</th><th>Age</th><th>Waiver</th><th>Medical</th></tr></thead>
-                <tbody></tbody>
-              </table>
-            </div>
-            <p id="roster-empty" class="text-center muted">No players registered yet.</p>
+            <h3>Share Strategy Video</h3>
+            <form id="strategy-form" style="margin-top:var(--space-4);">
+              <div class="form-group">
+                <label>Title</label>
+                <input type="text" name="title" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" class="form-control" rows="3"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Video URL (YouTube, etc.)</label>
+                <input type="url" name="videoUrl" class="form-control" placeholder="https://youtu.be/...">
+              </div>
+              <div class="form-group">
+                <label>Tagged Players</label>
+                <select name="taggedPlayers" class="form-control" multiple size="4" id="tagged-players"></select>
+              </div>
+              <button type="submit" class="btn btn-accent">Share Video</button>
+            </form>
           </div>
         </div>
       </div>
-    </section>
+
+      <!-- FEEDBACK -->
+      <div class="tab-content" id="lk-feedback">
+        <div class="grid-2" style="margin-bottom:var(--space-6);">
+          <div>
+            <h3 id="feedback-empty" style="display:none;">No feedback yet.</h3>
+            <div id="feedback-list"></div>
+          </div>
+          <div class="card">
+            <h3>Send Player Feedback</h3>
+            <form id="feedback-form" style="margin-top:var(--space-4);">
+              <div class="form-group">
+                <label>Player</label>
+                <select name="playerId" class="form-control" id="fb-player" required>
+                  <option value="">— Select player —</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Re: Video Title (optional)</label>
+                <input type="text" name="videoTitle" class="form-control" placeholder="Which video is this about?">
+              </div>
+              <div class="form-group">
+                <label>Feedback</label>
+                <textarea name="text" class="form-control" rows="4" required></textarea>
+              </div>
+              <div class="form-group">
+                <label>Rating (★)</label>
+                <select name="rating" class="form-control">
+                  <option value="5">5 stars</option>
+                  <option value="4">4 stars</option>
+                  <option value="3" selected>3 stars</option>
+                  <option value="2">2 stars</option>
+                  <option value="1">1 star</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-accent">Send Feedback</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROSTER -->
+      <div class="tab-content" id="lk-roster">
+        <h3>Team Roster</h3>
+        <p class="muted" style="font-size:0.9rem; margin-bottom:var(--space-4);">All registered players across all teams.</p>
+        <div class="table-wrap" style="margin-top:var(--space-4);">
+          <table id="roster-table">
+            <thead><tr><th>#</th><th>Name</th><th>Team</th><th>Pos</th><th>Age</th><th>Waiver</th><th>Medical</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p id="roster-empty" class="text-center muted">No players registered yet.</p>
+      </div>
+    </div>
   </div>
 </main>
 
@@ -155,17 +141,17 @@
 <div class="modal-backdrop" id="password-modal">
   <div class="modal">
     <div class="modal-header">
-      <h3>🔐 Enter Locker Room</h3>
+      <h3>Enter Locker Room</h3>
       <button class="modal-close" data-close>✕</button>
     </div>
     <p class="muted" style="font-size:0.9rem;">Enter the coach password to access the strategy area.</p>
-    <form id="password-form" style="margin-top:1rem;">
+    <form id="password-form" style="margin-top:var(--space-4);">
       <div class="form-group">
         <label>Password</label>
         <input type="password" name="password" class="form-control" required autofocus>
       </div>
       <button type="submit" class="btn btn-primary btn-block">Unlock</button>
-      <p class="muted text-center" style="font-size:0.8rem; margin-top:0.8rem;">Demo password: <code>locker2026</code></p>
+      <p class="muted text-center" style="font-size:0.8rem; margin-top:var(--space-3);">Demo password: <code style="font-size:0.85rem;">locker2026</code></p>
     </form>
   </div>
 </div>
@@ -175,7 +161,6 @@
 <script src="js/app.js"></script>
 <script>
 APP.renderTicker();
-APP.attachTilt();
 
 const COACH_PASSWORD = 'locker2026';
 const ALLOWED_ROLES = ['coach', 'admin', 'captain'];
@@ -196,17 +181,21 @@ function checkAccess() {
     document.getElementById('locker-content').style.display = 'none';
     if (!user) {
       document.getElementById('locker-gate').innerHTML = `
-        <div class="icon">🔒</div>
-        <h2>Login Required</h2>
-        <p class="muted">You must log in to access the Coach Locker Room.</p>
-        <a href="login.html" class="btn btn-primary" style="margin-top:1rem;">Login / Sign Up →</a>
+        <div class="card" style="text-align:center; padding:var(--space-12) var(--space-6);">
+          <div style="font-size:3rem; color:var(--c-text-dim); margin-bottom:var(--space-4);">🔒</div>
+          <h2>Login Required</h2>
+          <p class="muted">You must log in to access the Coach Locker Room.</p>
+          <a href="login.html" class="btn btn-primary" style="margin-top:var(--space-4);">Login / Sign Up &rarr;</a>
+        </div>
       `;
     } else if (!ALLOWED_ROLES.includes(user.role)) {
       document.getElementById('locker-gate').innerHTML = `
-        <div class="icon">🚫</div>
-        <h2>Access Denied</h2>
-        <p class="muted">Your account (${user.role}) doesn't have locker room access. Please contact a coach to upgrade your role.</p>
-        <a href="index.html" class="btn btn-ghost" style="margin-top:1rem;">← Back to home</a>
+        <div class="card" style="text-align:center; padding:var(--space-12) var(--space-6);">
+          <div style="font-size:3rem; color:var(--c-text-dim); margin-bottom:var(--space-4);">🚫</div>
+          <h2>Access Denied</h2>
+          <p class="muted">Your account (${user.role}) doesn't have locker room access. Please contact a coach to upgrade your role.</p>
+          <a href="index.html" class="btn btn-ghost" style="margin-top:var(--space-4);">← Back to home</a>
+        </div>
       `;
     }
   }
@@ -222,7 +211,7 @@ document.getElementById('password-form').addEventListener('submit', e => {
   if (e.target.password.value === COACH_PASSWORD) {
     sessionStorage.setItem('gzvm_locker', '1');
     document.getElementById('password-modal').classList.remove('open');
-    APP.toast('Welcome to the Locker Room 🔓', 'success');
+    APP.toast('Welcome to the Locker Room', 'success');
     checkAccess();
   } else {
     APP.toast('Wrong password', 'error');
@@ -256,10 +245,10 @@ function loadRoster() {
       <td>${i+1}</td>
       <td><strong>${APP.escapeHtml(p.name)}</strong></td>
       <td>${APP.escapeHtml(p.team || '—')}</td>
-      <td><span class="tag tag-blue">${p.position || '—'}</span></td>
+      <td><span class="tag tag-blue" style="font-size:0.7rem;">${p.position || '—'}</span></td>
       <td>${p.age || '—'}</td>
-      <td>${p.waiver?.signed ? '<span class="tag tag-teal">SIGNED</span>' : '<span class="tag tag-pink">MISSING</span>'}</td>
-      <td>${p.medical?.name ? '<span class="tag tag-teal">✓</span>' : '<span class="tag tag-pink">✗</span>'}</td>
+      <td>${p.waiver?.signed ? '<span class="tag tag-teal" style="font-size:0.7rem;">Signed</span>' : '<span class="tag tag-pink" style="font-size:0.7rem;">Missing</span>'}</td>
+      <td>${p.medical?.name ? '<span class="tag tag-teal" style="font-size:0.7rem;">✓</span>' : '<span class="tag tag-pink" style="font-size:0.7rem;">✗</span>'}</td>
     </tr>
   `).join('');
 }
@@ -270,12 +259,12 @@ function loadStrategyList() {
   if (!APP.data.strategy.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
   list.innerHTML = APP.data.strategy.slice().reverse().map(s => `
-    <div class="card card-3d">
-      <h3>📹 ${APP.escapeHtml(s.title)}</h3>
+    <div class="card" style="margin-bottom:var(--space-4);">
+      <h3 style="margin-bottom:var(--space-2);">${APP.escapeHtml(s.title)}</h3>
       <p class="muted" style="font-size:0.85rem;">By ${APP.escapeHtml(s.coach)} • ${APP.fmtDate(s.date)}</p>
-      <p style="font-size:0.9rem;">${APP.escapeHtml(s.description || 'No description')}</p>
-      ${s.videoUrl ? `<a href="${APP.escapeHtml(s.videoUrl)}" target="_blank" class="btn btn-sm btn-accent">▶ Watch Video</a>` : ''}
-      ${s.taggedPlayers && s.taggedPlayers.length ? `<p style="font-size:0.8rem; margin-top:0.5rem;"><strong>Tagged:</strong> ${s.taggedPlayers.map(id => APP.data.players.find(p => p.id === id)?.name || '?').join(', ')}</p>` : ''}
+      <p style="font-size:0.9rem; margin-top:var(--space-2);">${APP.escapeHtml(s.description || 'No description')}</p>
+      ${s.videoUrl ? `<a href="${APP.escapeHtml(s.videoUrl)}" target="_blank" class="btn btn-sm btn-accent" style="margin-top:var(--space-3);">▶ Watch Video</a>` : ''}
+      ${s.taggedPlayers && s.taggedPlayers.length ? `<p style="font-size:0.8rem; margin-top:var(--space-3);"><strong>Tagged:</strong> ${s.taggedPlayers.map(id => APP.data.players.find(p => p.id === id)?.name || '?').join(', ')}</p>` : ''}
     </div>
   `).join('');
 }
@@ -288,13 +277,13 @@ function loadFeedbackHistory() {
   list.innerHTML = APP.data.feedback.slice().reverse().map(f => {
     const player = APP.data.players.find(p => p.id === f.playerId);
     return `
-      <div class="card" style="margin-bottom:0.8rem;">
+      <div class="card" style="margin-bottom:var(--space-3);">
         <div style="display:flex; justify-content:space-between; align-items:start;">
           <strong>→ ${APP.escapeHtml(player?.name || 'Unknown')}</strong>
-          <span>${'⭐'.repeat(f.rating || 0)}</span>
+          <span style="color: var(--c-accent); font-weight: 800;">★ ${f.rating || 0}</span>
         </div>
-        ${f.videoTitle ? `<p class="muted" style="font-size:0.8rem;">Re: ${APP.escapeHtml(f.videoTitle)}</p>` : ''}
-        <p style="margin-top:0.5rem;">${APP.escapeHtml(f.text)}</p>
+        ${f.videoTitle ? `<p class="muted" style="font-size:0.8rem; margin-top:var(--space-1);">Re: ${APP.escapeHtml(f.videoTitle)}</p>` : ''}
+        <p style="margin-top:var(--space-3);">${APP.escapeHtml(f.text)}</p>
         <small class="muted">${APP.fmtDate(f.date)} • from ${APP.escapeHtml(f.coach)}</small>
       </div>
     `;
@@ -323,7 +312,7 @@ if (vdrop) {
 document.getElementById('strategy-form').addEventListener('submit', e => {
   e.preventDefault();
   const fd = new FormData(e.target);
-  const videoFile = e.target.videoFile.files[0];
+  const videoFile = e.target.videoFile ? e.target.videoFile.files[0] : null;
   if (!fd.get('videoUrl') && !videoFile) return APP.toast('Add a video URL or file', 'error');
   const tagged = Array.from(e.target.taggedPlayers.selectedOptions).map(o => o.value);
   const me = APP.currentUser();
@@ -339,7 +328,7 @@ document.getElementById('strategy-form').addEventListener('submit', e => {
   };
   APP.data.strategy.push(strategy);
   APP.save();
-  APP.toast('Strategy video shared! 📹', 'success');
+  APP.toast('Strategy video shared!', 'success');
   e.target.reset();
   document.getElementById('video-name').textContent = 'No file selected';
   loadStrategyList();
@@ -360,7 +349,7 @@ document.getElementById('feedback-form').addEventListener('submit', e => {
   };
   APP.data.feedback.push(feedback);
   APP.save();
-  APP.toast('Feedback sent! 💬', 'success');
+  APP.toast('Feedback sent!', 'success');
   e.target.reset();
   loadFeedbackHistory();
 });
