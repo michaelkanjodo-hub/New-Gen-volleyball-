@@ -1,169 +1,211 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login — Gen Z Volleyball Malawi</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230b1020'/%3E%3Ccircle cx='50' cy='50' r='40' fill='%23e8b33a'/%3E%3Cpath d='M35 50 Q50 30 65 50 Q50 70 35 50 Z' fill='%230b1020'/%3E%3C/svg%3E">
-</head>
-<body>
-
-<nav class="nav"></nav>
-
-<div class="ticker"><div class="ticker-track container"></div></div>
-
-<main>
-  <section>
-    <div class="container" style="max-width: 700px; margin: 0 auto;">
-      <div class="tabs" style="justify-content:center; margin-bottom:var(--space-8);">
-        <button class="tab active" data-au="login">Login</button>
-        <button class="tab" data-au="signup">Create Account</button>
-      </div>
-
-      <div class="grid-2" style="max-width: 700px; margin: 0 auto;">
-        <!-- LOGIN -->
-        <div class="tab-content active" id="au-login">
-          <div class="card">
-            <h3>Welcome Back</h3>
-            <p class="muted" style="font-size:0.9rem;">Login to access your dashboard, training tracker, and locker room.</p>
-            <form id="login-form" style="margin-top:var(--space-4);">
-              <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="email" class="form-control" required>
-              </div>
-              <div class="form-group">
-                <label>Password</label>
-                <input type="password" name="password" class="form-control" required>
-              </div>
-              <button type="submit" class="btn btn-primary btn-block">Login &rarr;</button>
-            </form>
-            <p class="muted text-center" style="font-size:0.85rem; margin-top:var(--space-4);">No account yet? <a href="#" id="goto-signup">Create account</a></p>
-          </div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your account — Gen Z Volleyball Malawi</title>
+    <meta
+      name="description"
+      content="Sign in to your local GZVM account or create a demo account for the volleyball community."
+    />
+    <meta name="theme-color" content="#214c3b" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" type="image/svg+xml" href="assets/brand/mark.svg" />
+    <link
+      rel="preload"
+      href="assets/fonts/dm-sans-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="assets/fonts/barlow-condensed-600.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body id="top">
+    <nav class="nav"></nav>
+    <main id="main">
+      <div class="container section">
+        <div class="auth-layout">
+          <section class="auth-intro">
+            <div class="eyebrow">Your place in the community</div>
+            <h1>Back on court.</h1>
+            <p>
+              Sign in to keep your training notebook, register your team, and
+              make your next booking.
+            </p>
+            <div class="notice">
+              <strong>About accounts on this website</strong>
+              <p style="margin-top: 8px">
+                Accounts currently live in this browser. They do not yet provide
+                secure cross-device sign-in. Use a unique demo password, not a
+                password you use elsewhere.
+              </p>
+            </div>
+            <p style="margin-top: 24px; font-size: 13px">
+              Just here to watch? <a href="live.html">Visit the live page</a>.
+              No account needed.
+            </p>
+          </section>
+          <section class="auth-panel" aria-label="Account access">
+            <div class="tabs" data-tabs="auth">
+              <button class="tab" data-tab="au-login" aria-selected="true">
+                Sign in</button
+              ><button class="tab" data-tab="au-signup">Create account</button>
+            </div>
+            <div class="tab-panel" id="au-login">
+              <form id="login-form">
+                <div class="form-group">
+                  <label for="login-email">Email address</label
+                  ><input
+                    class="form-control"
+                    id="login-email"
+                    type="email"
+                    name="email"
+                    autocomplete="username"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="login-password">Password</label>
+                  <div class="password-field">
+                    <input
+                      class="form-control"
+                      id="login-password"
+                      type="password"
+                      name="password"
+                      autocomplete="current-password"
+                      required
+                    /><button
+                      type="button"
+                      class="password-toggle"
+                      aria-controls="login-password"
+                      aria-pressed="false"
+                    >
+                      Show
+                    </button>
+                  </div>
+                </div>
+                <button class="btn btn-primary btn-block" type="submit">
+                  Sign in ↗
+                </button>
+                <div class="form-status" role="status"></div>
+              </form>
+              <p class="auth-switch muted">
+                New to the community?
+                <button class="btn btn-ghost btn-sm" data-switch="au-signup">
+                  Create an account
+                </button>
+              </p>
+            </div>
+            <div class="tab-panel" id="au-signup" hidden>
+              <form id="signup-form">
+                <div class="form-group">
+                  <label for="signup-name">Full name</label
+                  ><input
+                    class="form-control"
+                    id="signup-name"
+                    name="name"
+                    autocomplete="name"
+                    maxlength="100"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="signup-email">Email address</label
+                  ><input
+                    class="form-control"
+                    id="signup-email"
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="signup-password">Password</label>
+                  <div class="password-field">
+                    <input
+                      class="form-control"
+                      id="signup-password"
+                      type="password"
+                      name="password"
+                      autocomplete="new-password"
+                      minlength="8"
+                      required
+                      aria-describedby="password-hint"
+                    /><button
+                      type="button"
+                      class="password-toggle"
+                      aria-controls="signup-password"
+                      aria-pressed="false"
+                    >
+                      Show
+                    </button>
+                  </div>
+                  <small class="form-hint" id="password-hint"
+                    >At least 8 characters. Use a unique demo password.</small
+                  >
+                </div>
+                <div class="form-group">
+                  <label for="signup-role">Your role</label
+                  ><select
+                    class="form-control"
+                    id="signup-role"
+                    name="role"
+                    required
+                  >
+                    <option value="">Choose your role</option>
+                    <option value="player">Player</option>
+                    <option value="coach">Coach</option>
+                    <option value="captain">Team captain</option>
+                    <option value="fan">Fan / supporter</option></select
+                  ><small class="form-hint"
+                    >Administrator access must be assigned by the site owner,
+                    not self-selected.</small
+                  >
+                </div>
+                <button class="btn btn-primary btn-block" type="submit">
+                  Create account ↗
+                </button>
+                <div class="form-status" role="status"></div>
+              </form>
+              <p class="auth-switch muted">
+                Already registered?
+                <button class="btn btn-ghost btn-sm" data-switch="au-login">
+                  Sign in
+                </button>
+              </p>
+            </div>
+            <details class="demo-details">
+              <summary>Trying the coach tools? Demo access</summary>
+              <p>
+                Create a coach account above, or seed the two existing local
+                demo coaches. These are test accounts, not real staff accounts.
+              </p>
+              <p>
+                <code>coach.mary@genzvolleyball.mw</code><br /><code
+                  >coach.joseph@genzvolleyball.mw</code
+                ><br />Password: <code>coach123</code> · Locker:
+                <code>locker2026</code>
+              </p>
+              <button class="btn btn-secondary btn-sm" id="seed-coaches">
+                Create local demo coaches
+              </button>
+              <p id="seed-status" role="status"></p>
+            </details>
+          </section>
         </div>
-
-        <!-- SIGNUP -->
-        <div class="tab-content" id="au-signup">
-          <div class="card">
-            <h3>Create Account</h3>
-            <p class="muted" style="font-size:0.9rem;">Players, coaches, and team captains all need an account.</p>
-            <form id="signup-form" style="margin-top:var(--space-4);">
-              <div class="form-group">
-                <label>Full Name <span class="muted" style="font-weight:400;">*</span></label>
-                <input type="text" name="name" class="form-control" required>
-              </div>
-              <div class="form-group">
-                <label>Email <span class="muted" style="font-weight:400;">*</span></label>
-                <input type="email" name="email" class="form-control" required>
-              </div>
-              <div class="form-group">
-                <label>Password <span class="muted" style="font-weight:400;">*</span></label>
-                <input type="password" name="password" class="form-control" minlength="6" required>
-              </div>
-              <div class="form-group">
-                <label>Role <span class="muted" style="font-weight:400;">*</span></label>
-                <select name="role" class="form-control" required>
-                  <option value="">— Select —</option>
-                  <option value="player">Player</option>
-                  <option value="coach">Coach</option>
-                  <option value="captain">Team Captain</option>
-                  <option value="admin">League Admin</option>
-                  <option value="fan">Fan / Supporter</option>
-                </select>
-              </div>
-              <button type="submit" class="btn btn-primary btn-block">Create Account &rarr;</button>
-            </form>
-            <p class="muted text-center" style="font-size:0.85rem; margin-top:var(--space-4);">Already have an account? <a href="#" id="goto-login">Login</a></p>
-          </div>
-        </div>
       </div>
-
-      <div class="card" style="max-width: 700px; margin: var(--space-8) auto 0;">
-        <h3>Existing Coaches (for demo)</h3>
-        <p class="muted" style="font-size:0.9rem;">Use these to test the Coach Locker Room (or sign up your own coach account):</p>
-        <ul style="margin-top:var(--space-3); font-size:0.9rem; list-style:none; padding:0;">
-          <li style="margin-bottom:var(--space-2);">📧 <strong>coach.mary@genzvolleyball.mw</strong> / <code style="font-size:0.85rem;">coach123</code></li>
-          <li style="margin-bottom:var(--space-2);">📧 <strong>coach.joseph@genzvolleyball.mw</strong> / <code style="font-size:0.85rem;">coach123</code></li>
-        </ul>
-        <button class="btn btn-sm btn-accent" id="seed-coaches" style="margin-top:var(--space-3);">⚙️ Seed demo coach accounts</button>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer class="footer"></footer>
-
-<script src="js/livestream.js"></script>
-<script src="js/supabase-sync.js"></script>
-<script src="js/app.js"></script>
-<script>
-APP.renderTicker();
-
-function switchAuth(tab) {
-  document.querySelectorAll('.tab[data-au]').forEach(x => x.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
-  document.querySelector(`.tab[data-au="${tab}"]`).classList.add('active');
-  document.getElementById('au-' + tab).classList.add('active');
-}
-document.querySelectorAll('.tab[data-au]').forEach(t => t.addEventListener('click', () => switchAuth(t.dataset.au)));
-document.getElementById('goto-signup').addEventListener('click', e => { e.preventDefault(); switchAuth('signup'); });
-document.getElementById('goto-login').addEventListener('click', e => { e.preventDefault(); switchAuth('login'); });
-
-document.getElementById('login-form').addEventListener('submit', e => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  try {
-    const user = APP.login(fd.get('email'), fd.get('password'));
-    APP.toast(`Welcome back, ${user.name}!`, 'success');
-    setTimeout(() => location.href = 'index.html', 600);
-  } catch (err) {
-    APP.toast(err.message, 'error');
-  }
-});
-
-document.getElementById('signup-form').addEventListener('submit', e => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  try {
-    const user = APP.register({
-      name: fd.get('name'),
-      email: fd.get('email'),
-      password: fd.get('password'),
-      role: fd.get('role')
-    });
-    APP.toast(`Account created! Welcome, ${user.name}`, 'success');
-    setTimeout(() => location.href = 'index.html', 600);
-  } catch (err) {
-    APP.toast(err.message, 'error');
-  }
-});
-
-// Seed demo coach accounts
-document.getElementById('seed-coaches').addEventListener('click', () => {
-  const coaches = [
-    { name: 'Coach Mary Banda', email: 'coach.mary@genzvolleyball.mw', password: 'coach123', role: 'coach' },
-    { name: 'Coach Joseph Phiri', email: 'coach.joseph@genzvolleyball.mw', password: 'coach123', role: 'coach' }
-  ];
-  let added = 0;
-  coaches.forEach(c => {
-    if (!APP.data.users.some(u => u.email === c.email)) {
-      APP.data.users.push({
-        id: APP.uid(),
-        name: c.name,
-        email: c.email,
-        role: c.role,
-        passwordHash: APP.hash(c.password),
-        createdAt: new Date().toISOString()
-      });
-      added++;
-    }
-  });
-  APP.save();
-  APP.toast(added ? `Seeded ${added} coach accounts` : 'Coaches already exist', 'success');
-});
-</script>
-</body>
+    </main>
+    <footer class="footer"></footer>
+    <script src="js/supabase-sync.js" defer></script>
+    <script src="js/app.js" defer></script>
+    <script src="js/pages/login.js" defer></script>
+  </body>
 </html>

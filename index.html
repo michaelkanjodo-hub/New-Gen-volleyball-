@@ -1,551 +1,305 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gen Z Volleyball Malawi — Train. Play. Rise.</title>
-<meta name="description" content="Gen Z Volleyball Malawi — the home of under-25 volleyball in Malawi. Training, live streams, registration, leaderboard, and more.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230b1020'/%3E%3Ccircle cx='50' cy='50' r='40' fill='%23e8b33a'/%3E%3Cpath d='M35 50 Q50 30 65 50 Q50 70 35 50 Z' fill='%230b1020'/%3E%3C/svg%3E">
-</head>
-<body>
-
-<nav class="nav"></nav>
-
-<!-- TICKER -->
-<div class="ticker"><div class="ticker-track container"></div></div>
-
-<main>
-  <!-- HERO -->
-  <section class="hero">
-    <div class="container">
-      <span class="tag tag-teal">Under-25 Volleyball &bull; Malawi</span>
-      <h1>Gen Z Volleyball Malawi</h1>
-      <p>The community platform for under-25 volleyball players, coaches, and teams across Malawi. Register, train, stream matches, book fixtures, and track the leaderboard — all in one place.</p>
-      <div class="hero-cta">
-        <a class="btn btn-primary" href="register.html">Register as a Player</a>
-        <a class="btn btn-accent" href="live.html">Watch Live</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- NEXT MATCH COUNTDOWN -->
-  <section>
-    <div class="container">
-      <div class="section-title">
-        <span class="badge">Next Match</span>
-        <h2>Countdown to Tip-Off</h2>
-      </div>
-      <div id="countdown-next" class="countdown"></div>
-      <p class="muted" id="next-match-info">No matches scheduled yet. <a href="matches.html">Book one &rarr;</a></p>
-    </div>
-  </section>
-
-  <!-- LIVE REEL + SCORE PAD (split layout) -->
-  <section>
-    <div class="container">
-      <div class="grid-2">
-        <div>
-          <div class="section-title">
-            <span class="badge tag-danger">Live Reel</span>
-            <h2>Highlights</h2>
-          </div>
-          <div class="live-stream" id="home-reel">
-            <div class="stream-content" id="reel-placeholder">
-              <div class="icon">🏐</div>
-              <h3 style="color: white;">No match live right now</h3>
-              <p>Check out the public highlights reel</p>
-              <a href="live.html" class="btn btn-primary" style="margin-top:var(--space-4);">Open Full Reel &rarr;</a>
-            </div>
-            <div class="stream-overlay" id="reel-overlay" style="display:none;">
-              <span id="reel-title">Loading&hellip;</span>
-              <span class="viewer-count" id="reel-counter">▶ Reel 1 / 6</span>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gen Z Volleyball Malawi — The next set starts here</title>
+    <meta
+      name="description"
+      content="Find your team, train your skills, follow fixtures, and connect with Malawi’s under-25 volleyball community."
+    />
+    <meta name="theme-color" content="#214c3b" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" type="image/svg+xml" href="assets/brand/mark.svg" />
+    <link
+      rel="preload"
+      href="assets/fonts/dm-sans-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="assets/fonts/barlow-condensed-600.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body id="top">
+    <nav class="nav" aria-label="Main navigation"></nav>
+    <main id="main">
+      <section class="home-intro" aria-labelledby="home-title">
+        <div class="container">
+          <div class="home-intro-copy">
+            <div class="eyebrow">Under-25 volleyball · Malawi</div>
+            <h1 id="home-title">MALAWI’S<br /><span>NEXT SET.</span></h1>
+            <p>
+              Find your team. Put in the work. Make the next match count. A
+              shared home for Malawi’s young volleyball community.
+            </p>
+            <div class="button-row">
+              <a class="btn btn-gold" href="register.html"
+                >Join the league <span aria-hidden="true">↗</span></a
+              ><a class="text-link" href="matches.html" style="color: white"
+                >Explore the fixtures <span aria-hidden="true">→</span></a
+              >
             </div>
           </div>
-        </div>
-
-        <div>
-          <div class="section-title">
-            <span class="badge tag-yellow">Score Pad</span>
-            <h2>Track a Match</h2>
-          </div>
-          <div class="card" style="padding:0;">
-            <div class="scorepad-header">
-              <strong id="sp-set-label">Set 1</strong>
-              <button class="btn btn-sm btn-ghost" id="sp-reset">Reset</button>
+          <div class="fixture-board" aria-label="Next scheduled match">
+            <div class="fixture-board-top">
+              <span>NEXT ON COURT</span
+              ><span class="status" id="next-status">Fixtures</span>
             </div>
-            <div class="scorepad-teams">
-              <div class="scorepad-team">
-                <div class="name" id="sp-home-name">Home</div>
-                <div class="scorepad-score">
-                  <button data-team="home" data-delta="-1">&minus;</button>
-                  <span id="sp-home">0</span>
-                  <button data-team="home" data-delta="1">&plus;</button>
-                </div>
-              </div>
-              <div class="scorepad-vs">VS</div>
-              <div class="scorepad-team">
-                <div class="name" id="sp-away-name">Away</div>
-                <div class="scorepad-score">
-                  <button data-team="away" data-delta="-1">&minus;</button>
-                  <span id="sp-away">0</span>
-                  <button data-team="away" data-delta="1">&plus;</button>
-                </div>
+            <div id="next-match">
+              <div class="fixture-board-empty">
+                <h2>A new season.<br />An open court.</h2>
+                <p>
+                  Scheduled fixtures will appear here. Get your team ready for
+                  the next match.
+                </p>
               </div>
             </div>
-            <div class="scorepad-sets" id="sp-sets"></div>
-            <div class="scorepad-actions">
-              <input type="text" id="sp-team-home-input" class="form-control" placeholder="Home team" style="max-width:150px;">
-              <input type="text" id="sp-team-away-input" class="form-control" placeholder="Away team" style="max-width:150px;">
+            <div class="fixture-board-bottom">
+              <span>Malawi time · CAT</span
+              ><a class="text-link" href="matches.html"
+                >Match centre <span aria-hidden="true">↗</span></a
+              >
             </div>
-            <div class="scorepad-actions" style="margin-top:var(--space-4);">
-              <button class="btn btn-accent btn-sm" id="sp-next-set">Finish Set &rarr;</button>
-              <button class="btn btn-primary btn-sm" id="sp-save">Save Score</button>
-            </div>
-            <p class="muted text-center" style="font-size:0.8rem; margin-top:var(--space-4);">Track the score in real time. Saves to match history.</p>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- COURT MAP (full width) -->
-  <section>
-    <div class="container">
-      <div class="section-title">
-        <span class="badge tag-teal">Practice Map</span>
-        <h2>Practice Locations</h2>
-      </div>
-      <div class="court-map" id="court-map">
-        <div class="court-lines"></div>
-        <div class="net"></div>
-        <div class="map-legend">
-          <div><span class="dot" style="background: var(--c-danger)"></span> Active</div>
-          <div><span class="dot" style="background: var(--c-accent)"></span> Upcoming</div>
-          <div><span class="dot" style="background: var(--c-success)"></span> Open</div>
+      </section>
+      <nav class="wayfinding" aria-label="Get started">
+        <div class="container">
+          <a href="teams.html"
+            ><span class="route-number" aria-hidden="true">01</span
+            ><span
+              ><strong>Find your team</strong
+              ><small>Meet the community</small></span
+            ><span class="arrow" aria-hidden="true">↗</span></a
+          >
+          <a href="training.html"
+            ><span class="route-number" aria-hidden="true">02</span
+            ><span
+              ><strong>Put in the work</strong
+              ><small>Drills & skill tracking</small></span
+            ><span class="arrow" aria-hidden="true">↗</span></a
+          >
+          <a href="matches.html"
+            ><span class="route-number" aria-hidden="true">03</span
+            ><span
+              ><strong>Make a fixture</strong
+              ><small>Matches & practice</small></span
+            ><span class="arrow" aria-hidden="true">↗</span></a
+          >
         </div>
-        <!-- pins injected by JS -->
-      </div>
-      <div id="location-cards"></div>
-    </div>
-  </section>
-
-  <!-- LEADERBOARD PREVIEW (table) -->
-  <section>
-    <div class="container">
-      <div class="section-title">
-        <span class="badge tag-accent">Leaderboard</span>
-        <h2>Top Players</h2>
-        <a href="leaderboard.html" class="btn btn-ghost btn-sm" style="margin-left:auto;">View full leaderboard &rarr;</a>
-      </div>
-      <div class="table-wrap">
-        <table id="home-leaderboard">
-          <thead>
-            <tr><th>Rank</th><th>Player</th><th>Team</th><th>Position</th><th>Points</th><th>MVPs</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <p id="leaderboard-empty" class="text-center muted" style="margin-top:var(--space-4);">Register your team to populate the leaderboard. <a href="register.html">Sign up &rarr;</a></p>
-    </div>
-  </section>
-
-  <!-- HIGHLIGHTS (grid) -->
-  <section>
-    <div class="container">
-      <div class="section-title">
-        <span class="badge tag-teal">Scouting</span>
-        <h2>Highlights &mdash; Get Noticed</h2>
-      </div>
-      <div class="grid-3" id="highlights-grid"></div>
-      <p id="highlights-empty" class="text-center muted" style="margin-top:var(--space-4);">No highlights yet. Be the first to upload yours after registering.</p>
-    </div>
-  </section>
-
-  <!-- QUICK ACTIONS (clean text grid, no emoji cards) -->
-  <section>
-    <div class="container">
-      <div class="grid-4">
-        <a href="live.html" class="card text-center">
-          <h3>Go Live</h3>
-          <p class="muted" style="font-size:0.85rem;">Stream your game</p>
-        </a>
-        <a href="teams.html" class="card text-center">
-          <h3>Teams</h3>
-          <p class="muted" style="font-size:0.85rem;">All registered teams</p>
-        </a>
-        <a href="training.html" class="card text-center">
-          <h3>Training Tips</h3>
-          <p class="muted" style="font-size:0.85rem;">Drills &amp; guides</p>
-        </a>
-        <a href="register.html" class="card text-center">
-          <h3>Register</h3>
-          <p class="muted" style="font-size:0.85rem;">Players &amp; teams</p>
-        </a>
-        <a href="matches.html" class="card text-center">
-          <h3>Book a Match</h3>
-          <p class="muted" style="font-size:0.85rem;">Find opponents</p>
-        </a>
-        <a href="donate.html" class="card text-center">
-          <h3>Donate</h3>
-          <p class="muted" style="font-size:0.85rem;">Support the league</p>
-        </a>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer class="footer"></footer>
-
-<script src="js/livestream.js"></script>
-<script src="js/supabase-sync.js"></script>
-<script src="js/app.js"></script>
-<script>
-// ====== TICKER ======
-APP.renderTicker();
-
-// ====== COUNTDOWN ======
-let nextMatch = null;
-function findNextMatch() {
-  const upcoming = APP.data.matches
-    .filter(m => m.status === 'scheduled' && m.date && new Date(m.date) > new Date())
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
-  return upcoming[0] || null;
-}
-function renderCountdown() {
-  nextMatch = findNextMatch();
-  const wrap = document.getElementById('countdown-next');
-  const info = document.getElementById('next-match-info');
-  if (!nextMatch) {
-    wrap.innerHTML = '<div class="countdown-unit"><span class="num">—</span><span class="lbl">No match</span></div>';
-    info.innerHTML = 'No matches scheduled yet. <a href="matches.html">Book one &rarr;</a>';
-    return;
-  }
-  const c = APP.countdown(nextMatch.date);
-  wrap.innerHTML = `
-    <div class="countdown-unit"><span class="num">${c.d}</span><span class="lbl">Days</span></div>
-    <div class="countdown-unit"><span class="num">${String(c.h).padStart(2, '0')}</span><span class="lbl">Hours</span></div>
-    <div class="countdown-unit"><span class="num">${String(c.m).padStart(2, '0')}</span><span class="lbl">Mins</span></div>
-    <div class="countdown-unit"><span class="num">${String(c.s).padStart(2, '0')}</span><span class="lbl">Secs</span></div>
-  `;
-  info.innerHTML = `<strong>${APP.escapeHtml(nextMatch.homeTeam)}</strong> vs <strong>${APP.escapeHtml(nextMatch.awayTeam)}</strong> — ${APP.fmtDate(nextMatch.date)} at ${APP.fmtTime(nextMatch.date)}`;
-}
-renderCountdown();
-setInterval(renderCountdown, 1000);
-
-// ====== HIGHLIGHTS REEL (homepage) ======
-let reelIndex = 0;
-function renderReel() {
-  const liveMatch = APP.data.matches.find(m => m.status === 'live');
-  const liveRooms = LIVE.getActiveRooms();
-  const placeholder = document.getElementById('reel-placeholder');
-  const overlay = document.getElementById('reel-overlay');
-  const stream = document.getElementById('home-reel');
-  stream.querySelectorAll('iframe').forEach(f => f.remove());
-  stream.querySelectorAll('.live-badge').forEach(b => b.remove());
-
-  if (liveMatch) {
-    stream.insertAdjacentHTML('afterbegin', '<div class="live-badge"><span class="live-dot"></span> ON AIR</div>');
-    placeholder.innerHTML = `
-      <div class="icon">🏐</div>
-      <h3 style="color: white;">${APP.escapeHtml(liveMatch.homeTeam)} vs ${APP.escapeHtml(liveMatch.awayTeam)}</h3>
-      <p>Match in progress</p>
-      <a href="live.html" class="btn btn-primary" style="margin-top:var(--space-4);">Watch Live &rarr;</a>
-    `;
-    placeholder.style.display = 'flex';
-    overlay.style.display = 'flex';
-    overlay.querySelector('#reel-title').textContent = '📍 ' + (liveMatch.venue || 'Live');
-    overlay.querySelector('#reel-counter').textContent = '● LIVE';
-    return;
-  }
-
-  if (liveRooms.length) {
-    const room = liveRooms[0];
-    stream.insertAdjacentHTML('afterbegin', '<div class="live-badge"><span class="live-dot"></span> ON AIR</div>');
-    overlay.style.display = 'flex';
-    overlay.querySelector('#reel-title').textContent = `📡 ${room.title}`;
-    overlay.querySelector('#reel-counter').textContent = `● LIVE — ${room.host}`;
-
-    if (room.type === 'external' && room.externalUrl) {
-      const iframe = document.createElement('iframe');
-      iframe.src = LIVE.toEmbedUrl(room.externalUrl);
-      iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
-      iframe.allowFullscreen = true;
-      iframe.style.cssText = 'position:absolute; inset:0; width:100%; height:100%; border:0;';
-      stream.appendChild(iframe);
-      placeholder.style.display = 'none';
-    } else {
-      placeholder.style.display = 'flex';
-      placeholder.innerHTML = `
-        <div class="icon">📡</div>
-        <h3 style="color: white;">${APP.escapeHtml(room.title)}</h3>
-        <p>Live P2P stream by ${APP.escapeHtml(room.host)}</p>
-        <a href="live.html?room=${room.id}" class="btn btn-primary" style="margin-top:var(--space-4);">▶ Join Stream</a>
-      `;
-    }
-    return;
-  }
-
-  const v = APP.publicHighlights[reelIndex % APP.publicHighlights.length];
-  const iframe = document.createElement('iframe');
-  iframe.src = APP.embedUrl(v.videoId);
-  iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-  iframe.allowFullscreen = true;
-  iframe.style.cssText = 'position:absolute; inset:0; width:100%; height:100%; border:0;';
-  stream.appendChild(iframe);
-  placeholder.style.display = 'none';
-  overlay.style.display = 'flex';
-  overlay.querySelector('#reel-title').textContent = v.title;
-  overlay.querySelector('#reel-counter').textContent = `▶ Reel ${reelIndex + 1} / ${APP.publicHighlights.length}`;
-
-  clearInterval(window._reelTimer);
-  window._reelTimer = setInterval(() => {
-    reelIndex++;
-    renderReel();
-  }, 45000);
-}
-renderReel();
-setInterval(renderReel, 30000);
-
-// ====== LIVE ROOMS STRIP (homepage) ======
-function renderHomeLiveRooms() {
-  const wrap = document.getElementById('home-live-rooms');
-  const active = LIVE.getActiveRooms();
-  if (!active.length) { wrap.innerHTML = ''; return; }
-  wrap.innerHTML = `
-    <div class="alert alert-danger" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:var(--space-3);">
-      <div>
-        <strong>📡 ${active.length} live stream${active.length === 1 ? '' : 's'} happening right now</strong>
-        <p class="muted" style="font-size:0.85rem; margin:0;">
-          ${active.slice(0, 3).map(r => `<span>• ${APP.escapeHtml(r.title)} (${APP.escapeHtml(r.host)})</span>`).join(' ')}
-        </p>
-      </div>
-      <div style="display:flex; gap:var(--space-2); flex-wrap:wrap;">
-        ${active.slice(0, 2).map(r => `<a class="btn btn-sm btn-primary" href="live.html?room=${r.id}">▶ Watch</a>`).join('')}
-      </div>
-    </div>
-  `;
-}
-renderHomeLiveRooms();
-LIVE.listenToRooms(renderHomeLiveRooms);
-
-// ====== SCORE PAD ======
-const sp = { home: 0, away: 0, sets: [] };
-const $ = id => document.getElementById(id);
-
-function renderScorePad() {
-  $('sp-home').textContent = sp.home;
-  $('sp-away').textContent = sp.away;
-  $('sp-sets').innerHTML = sp.sets.map((s, i) =>
-    `<div class="set-pill">Set ${i+1}: ${s[0]}-${s[1]}</div>`
-  ).join('') || '<span class="muted" style="font-size:0.85rem;">No sets completed</span>';
-  $('sp-set-label').textContent = `Set ${sp.sets.length + 1}`;
-}
-document.querySelectorAll('.scorepad-score button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const team = btn.dataset.team;
-    const delta = parseInt(btn.dataset.delta);
-    sp[team] = Math.max(0, sp[team] + delta);
-    $('sp-home-name').textContent = $('sp-team-home-input').value || 'Home';
-    $('sp-away-name').textContent = $('sp-team-away-input').value || 'Away';
-    renderScorePad();
-  });
-});
-$('sp-team-home-input').addEventListener('input', e => $('sp-home-name').textContent = e.target.value || 'Home');
-$('sp-team-away-input').addEventListener('input', e => $('sp-away-name').textContent = e.target.value || 'Away');
-$('sp-next-set').addEventListener('click', () => {
-  if (sp.home === 0 && sp.away === 0) return APP.toast('Add some points first', 'info');
-  sp.sets.push([sp.home, sp.away]);
-  sp.home = 0; sp.away = 0;
-  renderScorePad();
-  APP.toast('Set saved!', 'success');
-});
-$('sp-reset').addEventListener('click', () => {
-  sp.home = 0; sp.away = 0; sp.sets = [];
-  renderScorePad();
-});
-$('sp-save').addEventListener('click', () => {
-  const home = $('sp-team-home-input').value || 'Home Team';
-  const away = $('sp-team-away-input').value || 'Away Team';
-  if (!sp.sets.length) return APP.toast('Finish at least one set first', 'warning');
-  APP.data.matches.push({
-    id: APP.uid(),
-    homeTeam: home, awayTeam: away,
-    date: new Date().toISOString(),
-    status: 'completed',
-    score: {
-      home: sp.sets.reduce((a, s) => a + (s[0] > s[1] ? 1 : 0), 0),
-      away: sp.sets.reduce((a, s) => a + (s[1] > s[0] ? 1 : 0), 0)
-    },
-    sets: sp.sets.map(s => [...s])
-  });
-  APP.save();
-  APP.toast('Match saved to history!', 'success');
-  $('sp-reset').click();
-});
-renderScorePad();
-
-// ====== COURT MAP ======
-function renderCourtMap() {
-  const map = $('court-map');
-  const cards = $('location-cards');
-  map.querySelectorAll('.map-pin').forEach(p => p.remove());
-
-  const practices = APP.data.bookings
-    .filter(b => b.type === 'practice' && b.status !== 'cancelled')
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  if (practices.length === 0) {
-    const venues = [
-      { name: 'Blantyre Sports Complex', x: 20, y: 75, cls: '' },
-      { name: 'Lilongwe Civic Centre', x: 55, y: 35, cls: 'pin-2' },
-      { name: 'Mzuzu Court Arena', x: 30, y: 15, cls: 'pin-3' },
-      { name: 'Zomba Youth Field', x: 75, y: 70, cls: 'pin-4' },
-    ];
-    venues.forEach((v, i) => {
-      const pin = document.createElement('div');
-      pin.className = 'map-pin ' + v.cls;
-      pin.style.left = v.x + '%';
-      pin.style.top = v.y + '%';
-      pin.style.opacity = '0.35';
-      pin.innerHTML = `<span>${i+1}</span>`;
-      pin.title = v.name + ' — no practices scheduled';
-      map.appendChild(pin);
-    });
-    cards.innerHTML = `
-      <div class="card" style="grid-column: 1 / -1; text-align: center; padding: var(--space-10) var(--space-6);">
-        <h3 style="margin-bottom:var(--space-2);">No practice sessions scheduled yet</h3>
-        <p class="muted">Once teams book practice sessions, they'll appear here on the court map.</p>
-        <a href="matches.html" class="btn btn-primary" style="margin-top:var(--space-4);">Book a Practice &rarr;</a>
-      </div>
-    `;
-    return;
-  }
-
-  const venues = {
-    'Blantyre Sports Complex': { x: 20, y: 75, cls: '' },
-    'Lilongwe Civic Centre': { x: 55, y: 35, cls: 'pin-2' },
-    'Mzuzu Court Arena': { x: 30, y: 15, cls: 'pin-3' },
-    'Zomba Youth Field': { x: 75, y: 70, cls: 'pin-4' },
-    'Capital Volleyball Hall': { x: 50, y: 50, cls: 'pin-2' },
-  };
-  const seen = new Set();
-  practices.forEach((p, i) => {
-    const v = venues[p.venue] || { x: 50 + (i * 7) % 30, y: 50 + (i * 11) % 30, cls: '' };
-    const key = p.venue;
-    if (!seen.has(key)) {
-      seen.add(key);
-      const pin = document.createElement('div');
-      pin.className = 'map-pin ' + v.cls;
-      pin.style.left = v.x + '%';
-      pin.style.top = v.y + '%';
-      pin.innerHTML = `<span>${seen.size}</span>`;
-      pin.title = `${p.venue} — ${p.teamName}`;
-      map.appendChild(pin);
-    }
-  });
-
-  cards.innerHTML = practices.slice(0, 6).map(p => `
-    <div class="card">
-      <span class="tag tag-teal" style="font-size:0.7rem;">Practice</span>
-      <h3 style="margin-top:var(--space-3);">${APP.escapeHtml(p.venue)}</h3>
-      <p class="muted" style="font-size:0.9rem;">🏐 ${APP.escapeHtml(p.teamName)}</p>
-      <p style="margin-top:var(--space-3);"><strong>Next session:</strong> ${APP.fmtDate(p.date)} at ${APP.fmtTime(p.date)}</p>
-    </div>
-  `).join('');
-}
-renderCourtMap();
-
-// ====== LEADERBOARD PREVIEW ======
-function renderLeaderboard() {
-  const tb = document.querySelector('#home-leaderboard tbody');
-  const empty = $('leaderboard-empty');
-  if (!APP.data.players.length) { tb.innerHTML = ''; empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-  const ranked = APP.data.players
-    .map(p => ({
-      ...p,
-      pts: Object.values(p.stats || {}).reduce((a, b) => a + (b || 0), 0),
-      mvps: p.mvps || 0
-    }))
-    .sort((a, b) => b.pts - a.pts)
-    .slice(0, 5);
-  tb.innerHTML = ranked.map((p, i) => {
-    const avatar = p.photo
-      ? `<img src="${APP.escapeHtml(p.photo)}" alt="" style="width:32px; height:32px; border-radius:50%; object-fit:cover; vertical-align:middle; margin-right:var(--space-2); border: 2px solid var(--c-accent);">`
-      : `<span style="display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; line-height:32px; text-align:center; border-radius:50%; background: var(--c-accent); color: var(--c-bg); margin-right:var(--space-2); vertical-align:middle; font-size:0.85rem; font-weight:800;">🏐</span>`;
-    return `
-    <tr>
-      <td><span class="rank-badge ${i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n'}">${i+1}</span></td>
-      <td>${avatar}<strong>${APP.escapeHtml(p.name)}</strong></td>
-      <td>${APP.escapeHtml(p.team || '—')}</td>
-      <td><span class="tag tag-blue" style="font-size:0.7rem;">${p.position || '—'}</span></td>
-      <td><strong style="color: var(--c-accent);">${p.pts}</strong></td>
-      <td>${p.mvps}</td>
-    </tr>
-  `;
-  }).join('');
-}
-renderLeaderboard();
-
-// ====== HIGHLIGHTS ======
-function renderHighlights() {
-  const grid = $('highlights-grid');
-  const empty = $('highlights-empty');
-  const userHighlights = APP.data.highlights.map(h => ({ ...h, source: 'user' }));
-  const publicOnes = APP.publicHighlights.map(p => ({
-    id: p.id,
-    title: p.title,
-    player: p.channel,
-    team: 'Featured',
-    views: 0,
-    videoId: p.videoId,
-    source: 'public'
-  }));
-  const all = [...userHighlights, ...publicOnes];
-
-  if (all.length === 0) {
-    grid.innerHTML = '';
-    empty.style.display = 'block';
-    return;
-  }
-  empty.style.display = 'none';
-  grid.innerHTML = all.slice(0, 6).map(h => {
-    const thumb = h.videoId ? APP.thumbUrl(h.videoId) : '';
-    return `
-      <div class="highlight-card" onclick="openHighlight('${h.id}','${h.source}','${h.videoId || ''}')">
-        ${thumb ? `<img class="highlight-thumb-img" src="${thumb}" alt="">` : '<div class="highlight-thumb">🏐</div>'}
-        <div class="play-btn">▶</div>
-        <div class="highlight-info">
-          <h4>${APP.escapeHtml(h.title)}</h4>
-          <div class="highlight-meta">${APP.escapeHtml(h.player || '')} ${h.team ? '• ' + APP.escapeHtml(h.team) : ''} ${h.source === 'public' ? '• 🌐 Featured' : ''}</div>
+      </nav>
+      <section class="section">
+        <div class="container home-film-layout">
+          <div>
+            <div class="section-heading">
+              <div>
+                <div class="eyebrow">From the community</div>
+                <h2>The film room.</h2>
+              </div>
+              <a class="text-link" href="live.html"
+                >Watch & connect <span aria-hidden="true">↗</span></a
+              >
+            </div>
+            <div id="home-live-rooms"></div>
+            <div id="home-film">
+              <div class="media-empty">
+                <div class="eyebrow">Your game, on film</div>
+                <h3>Every rally has a story.</h3>
+                <p>
+                  No community highlights yet. Share a clip from your latest
+                  match or practice.
+                </p>
+                <a class="text-link" href="training.html#film-room"
+                  >Add your first highlight ↗</a
+                >
+              </div>
+            </div>
+            <div class="media-caption">
+              <span>Real players. Real game footage.</span
+              ><span>GZVM film room</span>
+            </div>
+          </div>
+          <div>
+            <div class="section-heading">
+              <div>
+                <div class="eyebrow">Courtside tools</div>
+                <h2>Keep the score.</h2>
+                <p>A simple scorekeeper for your next five-set match.</p>
+              </div>
+            </div>
+            <form class="scorepad" id="score-form">
+              <div class="scorepad-header">
+                <h3 id="sp-set-label">Set 1 · First to 25</h3>
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-sm"
+                  id="sp-reset"
+                >
+                  Reset
+                </button>
+              </div>
+              <div class="scorepad-names">
+                <div class="form-group">
+                  <label for="sp-team-home-input">Home team</label
+                  ><input
+                    id="sp-team-home-input"
+                    class="form-control"
+                    name="home"
+                    placeholder="Home team"
+                    maxlength="60"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="sp-team-away-input">Away team</label
+                  ><input
+                    id="sp-team-away-input"
+                    class="form-control"
+                    name="away"
+                    placeholder="Away team"
+                    maxlength="60"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="scorepad-teams">
+                <div class="scorepad-team">
+                  <div class="name" id="sp-home-name">Home</div>
+                  <div class="scorepad-score">
+                    <span id="sp-home" aria-label="Home score">0</span>
+                    <div>
+                      <button
+                        type="button"
+                        data-team="home"
+                        data-delta="1"
+                        aria-label="Add one home point"
+                      >
+                        +</button
+                      ><button
+                        type="button"
+                        data-team="home"
+                        data-delta="-1"
+                        aria-label="Subtract one home point"
+                      >
+                        −
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <span class="scorepad-vs">VS</span>
+                <div class="scorepad-team">
+                  <div class="name" id="sp-away-name">Away</div>
+                  <div class="scorepad-score">
+                    <span id="sp-away" aria-label="Away score">0</span>
+                    <div>
+                      <button
+                        type="button"
+                        data-team="away"
+                        data-delta="1"
+                        aria-label="Add one away point"
+                      >
+                        +</button
+                      ><button
+                        type="button"
+                        data-team="away"
+                        data-delta="-1"
+                        aria-label="Subtract one away point"
+                      >
+                        −
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="scorepad-sets" id="sp-sets" aria-live="polite">
+                No sets completed
+              </div>
+              <div class="scorepad-actions">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  id="sp-next-set"
+                >
+                  Finish set</button
+                ><button type="submit" class="btn btn-primary" id="sp-save">
+                  Save match
+                </button>
+              </div>
+              <p class="scorepad-help">
+                Finish a set before saving. Three sets win a match; a deciding
+                fifth set goes to 15. Save only after the final set.
+              </p>
+              <div class="form-status" role="status"></div>
+            </form>
+          </div>
         </div>
-      </div>
-    `;
-  }).join('');
-}
-window.openHighlight = (id, source, videoId) => {
-  if (source === 'public' && videoId) {
-    location.href = `live.html?v=${videoId}`;
-  } else {
-    APP.toast(`Highlight: ${id}`, 'info');
-  }
-};
-renderHighlights();
-
-// Re-render dynamic sections after storage/sync loads extra data
-window.addEventListener('gzvm:refresh', () => {
-  renderCountdown();
-  renderReel();
-  renderHomeLiveRooms();
-  renderCourtMap();
-  renderLeaderboard();
-  renderHighlights();
-  APP.renderTicker();
-});
-</script>
-</body>
+      </section>
+      <section class="section section-white">
+        <div class="container content-aside">
+          <div>
+            <div class="section-heading">
+              <div>
+                <div class="eyebrow">Meet on court</div>
+                <h2>Practice, planned.</h2>
+                <p>Upcoming sessions from team bookings.</p>
+              </div>
+              <a class="text-link" href="matches.html">Plan a session ↗</a>
+            </div>
+            <div id="practice-list"></div>
+          </div>
+          <div>
+            <div class="section-heading">
+              <div>
+                <div class="eyebrow">The final whistle</div>
+                <h2>Recent results.</h2>
+              </div>
+            </div>
+            <div id="recent-results"></div>
+            <a class="text-link" href="matches.html?tab=results"
+              >All results <span aria-hidden="true">→</span></a
+            >
+          </div>
+        </div>
+      </section>
+      <section class="section">
+        <div class="container">
+          <div class="section-heading">
+            <div>
+              <div class="eyebrow">Development, not match statistics</div>
+              <h2>The player skill board.</h2>
+              <p>See who’s putting in the work. Ratings are self-reported.</p>
+            </div>
+            <a class="text-link" href="leaderboard.html">Explore the board ↗</a>
+          </div>
+          <div id="home-rankings"></div>
+        </div>
+      </section>
+      <section class="home-support">
+        <div class="container">
+          <div>
+            <h2>A little support. A lot of possibility.</h2>
+            <p>
+              Help young players get to training and stay in the game. Record a
+              pledge for equipment, court time, and travel.
+            </p>
+          </div>
+          <a class="btn btn-primary" href="donate.html"
+            >Support the community ↗</a
+          >
+        </div>
+      </section>
+    </main>
+    <footer class="footer"></footer>
+    <script src="js/livestream.js" defer></script>
+    <script src="js/supabase-sync.js" defer></script>
+    <script src="js/app.js" defer></script>
+    <script src="js/pages/home.js" defer></script>
+  </body>
 </html>

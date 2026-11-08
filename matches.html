@@ -1,272 +1,214 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Matches — Gen Z Volleyball Malawi</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230b1020'/%3E%3Ccircle cx='50' cy='50' r='40' fill='%23e8b33a'/%3E%3Cpath d='M35 50 Q50 30 65 50 Q50 70 35 50 Z' fill='%230b1020'/%3E%3C/svg%3E">
-</head>
-<body>
-
-<nav class="nav"></nav>
-
-<div class="ticker"><div class="ticker-track container"></div></div>
-
-<main>
-  <section class="hero">
-    <div class="container">
-      <span class="tag tag-pink">Schedule</span>
-      <h1>Matches & Bookings</h1>
-      <p>View past results, upcoming fixtures, and book your team's next match in seconds.</p>
-      <button class="btn btn-primary" id="book-match-btn" style="margin-top:var(--space-4);">+ Book a Match</button>
-    </div>
-  </section>
-
-  <section>
-    <div class="container">
-      <div class="tabs">
-        <button class="tab active" data-mt="upcoming">Upcoming</button>
-        <button class="tab" data-mt="live">Live Now</button>
-        <button class="tab" data-mt="completed">Results</button>
-        <button class="tab" data-mt="bookings">My Bookings</button>
-      </div>
-
-      <div class="tab-content active" id="mt-upcoming">
-        <div id="upcoming-list"></div>
-        <p id="upcoming-empty" class="text-center muted">No upcoming matches. Book one!</p>
-      </div>
-
-      <div class="tab-content" id="mt-live">
-        <div id="live-list"></div>
-        <p class="text-center muted">No matches live right now. Check the live page!</p>
-      </div>
-
-      <div class="tab-content" id="mt-completed">
-        <div id="completed-list"></div>
-        <p id="completed-empty" class="text-center muted">No completed matches yet.</p>
-      </div>
-
-      <div class="tab-content" id="mt-bookings">
-        <div id="bookings-list"></div>
-        <p id="bookings-empty" class="text-center muted">No bookings yet. Book your first match above!</p>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer class="footer"></footer>
-
-<!-- BOOK MATCH MODAL -->
-<div class="modal-backdrop" id="book-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <h3>Book a Match</h3>
-      <button class="modal-close" data-close>✕</button>
-    </div>
-    <form id="book-form">
-      <div class="form-group">
-        <label>Your Team</label>
-        <select name="teamId" class="form-control" required>
-          <option value="">— Select your team —</option>
-        </select>
-        <p class="muted" style="font-size:0.8rem; margin-top:var(--space-2);">Don't see your team? <a href="register.html">Register one here &rarr;</a>.</p>
-      </div>
-      <div class="form-group">
-        <label>Booking Type</label>
-        <select name="type" class="form-control" required>
-          <option value="match">Competitive Match (vs another team)</option>
-          <option value="practice">Practice / Scrimmage</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Opponent (leave blank if open challenge)</label>
-        <input type="text" name="opponent" class="form-control" placeholder="e.g. Blantyre Blockers">
-      </div>
-      <div class="grid-2">
-        <div class="form-group">
-          <label>Date</label>
-          <input type="date" name="date" class="form-control" required>
-        </div>
-        <div class="form-group">
-          <label>Time</label>
-          <input type="time" name="time" class="form-control" required>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Venue</label>
-        <select name="venue" class="form-control" required>
-          <option value="">— Select venue —</option>
-          <option>Blantyre Sports Complex</option>
-          <option>Lilongwe Civic Centre</option>
-          <option>Mzuzu Court Arena</option>
-          <option>Zomba Youth Field</option>
-          <option>Capital Volleyball Hall</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Notes (optional)</label>
-        <textarea name="notes" class="form-control" placeholder="Any special requests or info…"></textarea>
-      </div>
-      <button type="submit" class="btn btn-primary btn-block">Confirm Booking</button>
-    </form>
-  </div>
-</div>
-
-<script src="js/livestream.js"></script>
-<script src="js/supabase-sync.js"></script>
-<script src="js/app.js"></script>
-<script>
-APP.renderTicker();
-
-function loadTeamOptions() {
-  const sel = document.querySelector('#book-form select[name=teamId]');
-  sel.innerHTML = '<option value="">— Select your team —</option>' +
-    APP.data.teams.map(t => `<option value="${t.id}">${APP.escapeHtml(t.name)} (${t.city})</option>`).join('') +
-    '<option value="__new__">+ Register a new team</option>';
-}
-loadTeamOptions();
-
-document.querySelectorAll('.tab[data-mt]').forEach(t => {
-  t.addEventListener('click', () => {
-    document.querySelectorAll('.tab[data-mt]').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
-    t.classList.add('active');
-    document.getElementById('mt-' + t.dataset.mt).classList.add('active');
-  });
-});
-
-document.getElementById('book-match-btn').addEventListener('click', () => {
-  if (!APP.currentUser()) {
-    APP.toast('Please log in to book a match', 'warning');
-    setTimeout(() => location.href = 'login.html', 800);
-    return;
-  }
-  loadTeamOptions();
-  document.getElementById('book-modal').classList.add('open');
-});
-document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => document.getElementById('book-modal').classList.remove('open')));
-document.getElementById('book-modal').addEventListener('click', e => { if (e.target.id === 'book-modal') e.target.classList.remove('open'); });
-
-document.getElementById('book-form').addEventListener('submit', e => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const teamId = fd.get('teamId');
-  if (teamId === '__new__') {
-    APP.toast('Please register your team first', 'info');
-    setTimeout(() => location.href = 'register.html', 800);
-    return;
-  }
-  if (!teamId) return APP.toast('Pick your team', 'error');
-  const team = APP.data.teams.find(t => t.id === teamId);
-  const date = fd.get('date');
-  const time = fd.get('time');
-  const booking = {
-    id: APP.uid(),
-    teamId, teamName: team?.name || 'Team',
-    type: fd.get('type'),
-    opponent: fd.get('opponent') || 'TBD',
-    date: new Date(date + 'T' + time).toISOString(),
-    venue: fd.get('venue'),
-    notes: fd.get('notes'),
-    status: 'pending',
-    createdBy: APP.currentUser().id,
-    createdAt: new Date().toISOString()
-  };
-  APP.data.bookings.push(booking);
-  if (booking.type === 'match' && booking.opponent !== 'TBD') {
-    APP.data.matches.push({
-      id: APP.uid(),
-      homeTeam: booking.teamName,
-      awayTeam: booking.opponent,
-      date: booking.date,
-      venue: booking.venue,
-      status: 'scheduled',
-      score: null
-    });
-  }
-  APP.save();
-  APP.toast('Match booked!', 'success');
-  e.target.reset();
-  document.getElementById('book-modal').classList.remove('open');
-  renderAll();
-});
-
-function matchCard(m) {
-  const d = m.date ? new Date(m.date) : null;
-  const isCompleted = m.status === 'completed';
-  return `
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:start;">
-        <span class="tag ${m.status === 'live' ? 'tag-pink' : m.status === 'completed' ? 'tag-teal' : m.status === 'scheduled' ? 'tag-blue' : 'tag-yellow'}" style="font-size:0.7rem;">${(m.status || 'scheduled').toUpperCase()}</span>
-        <span class="muted" style="font-size:0.8rem;">${d ? APP.fmtDate(d) + ' • ' + APP.fmtTime(d) : 'TBD'}</span>
-      </div>
-      <div style="display:grid; grid-template-columns: 1fr auto 1fr; gap:var(--space-4); align-items:center; margin-top:var(--space-4);">
-        <div style="text-align:center;">
-          <strong>${APP.escapeHtml(m.homeTeam || 'TBD')}</strong>
-        </div>
-        <div class="scorepad-vs">VS</div>
-        <div style="text-align:center;">
-          <strong>${APP.escapeHtml(m.awayTeam || 'TBD')}</strong>
-        </div>
-      </div>
-      ${isCompleted && m.score ? `<p class="text-center" style="font-size:1.75rem; font-weight: 800; color: var(--c-accent); margin-top:var(--space-4);">${m.score.home} - ${m.score.away}</p>` : ''}
-      <p class="text-center muted" style="font-size:0.85rem; margin-top:var(--space-3);">📍 ${APP.escapeHtml(m.venue || 'TBD')}</p>
-    </div>
-  `;
-}
-
-function renderAll() {
-  const upcoming = APP.data.matches.filter(m => m.status === 'scheduled').sort((a, b) => new Date(a.date) - new Date(b.date));
-  const completed = APP.data.matches.filter(m => m.status === 'completed').sort((a, b) => new Date(b.date) - new Date(a.date));
-  const me = APP.currentUser();
-  const myTeamIds = me ? APP.data.teams.filter(t => t.captainId === me.id || (t.members || []).includes(me.id)).map(t => t.id) : [];
-  const myBookings = APP.data.bookings.filter(b => myTeamIds.includes(b.teamId) || b.createdBy === me?.id).sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  document.getElementById('upcoming-list').innerHTML = upcoming.length
-    ? upcoming.map(matchCard).join('')
-    : '';
-  document.getElementById('upcoming-empty').style.display = upcoming.length ? 'none' : 'block';
-
-  document.getElementById('completed-list').innerHTML = completed.length
-    ? `<div class="grid-2">${completed.map(matchCard).join('')}</div>`
-    : '';
-  document.getElementById('completed-empty').style.display = completed.length ? 'none' : 'block';
-
-  document.getElementById('bookings-list').innerHTML = myBookings.length
-    ? `<div class="grid-2">${myBookings.map(b => `
-        <div class="card">
-          <div style="display:flex; justify-content:space-between; align-items:start;">
-            <span class="tag ${b.type === 'match' ? 'tag-pink' : 'tag-teal'}" style="font-size:0.7rem;">${b.type.toUpperCase()}</span>
-            <span class="tag ${b.status === 'confirmed' ? 'tag-teal' : b.status === 'cancelled' ? 'tag-pink' : 'tag-yellow'}" style="font-size:0.7rem;">${b.status.toUpperCase()}</span>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Matches & practice — Gen Z Volleyball Malawi</title>
+    <meta
+      name="description"
+      content="Plan matches and practice, follow upcoming fixtures, and review final scores in Malawi time."
+    />
+    <meta name="theme-color" content="#214c3b" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" type="image/svg+xml" href="assets/brand/mark.svg" />
+    <link
+      rel="preload"
+      href="assets/fonts/dm-sans-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="assets/fonts/barlow-condensed-600.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body id="top">
+    <nav class="nav"></nav>
+    <main id="main">
+      <header class="page-heading">
+        <div class="container page-heading-row">
+          <div>
+            <div class="eyebrow">The match centre</div>
+            <h1>Make the next match happen.</h1>
+            <p>
+              Fixtures, practice sessions, and the final score. All times are
+              shown in Malawi time (CAT).
+            </p>
           </div>
-          <h3 style="margin-top:var(--space-3);">${APP.escapeHtml(b.teamName)} vs ${APP.escapeHtml(b.opponent)}</h3>
-          <p class="muted" style="font-size:0.9rem;">📅 ${APP.fmtDate(b.date)} at ${APP.fmtTime(b.date)}</p>
-          <p class="muted" style="font-size:0.9rem;">📍 ${APP.escapeHtml(b.venue)}</p>
-          ${b.notes ? `<p style="font-size:0.9rem; margin-top:var(--space-3);">${APP.escapeHtml(b.notes)}</p>` : ''}
-          <div style="display:flex; gap:var(--space-3); margin-top:var(--space-4);">
-            <button class="btn btn-sm btn-accent" onclick="updateBooking('${b.id}','confirmed')">Confirm</button>
-            <button class="btn btn-sm btn-ghost" onclick="updateBooking('${b.id}','cancelled')">Cancel</button>
+          <div class="button-row">
+            <button class="btn btn-primary" id="book-match-btn">
+              Book a match or practice <span aria-hidden="true">↗</span>
+            </button>
           </div>
         </div>
-      `).join('')}</div>`
-    : '';
-  document.getElementById('bookings-empty').style.display = myBookings.length ? 'none' : 'block';
-}
-
-window.updateBooking = (id, status) => {
-  const b = APP.data.bookings.find(x => x.id === id);
-  if (!b) return;
-  b.status = status;
-  APP.save();
-  APP.toast(`Booking ${status}`, 'success');
-  renderAll();
-};
-
-renderAll();
-</script>
-</body>
+      </header>
+      <div class="container page-body">
+        <div class="tabs" data-tabs="matches" aria-label="Match views">
+          <button class="tab" data-tab="fixtures-upcoming" aria-selected="true">
+            Upcoming fixtures</button
+          ><button class="tab" data-tab="fixtures-live">Live now</button
+          ><button class="tab" data-tab="fixtures-results">Results</button
+          ><button class="tab" data-tab="fixtures-bookings">My bookings</button>
+        </div>
+        <section
+          class="tab-panel"
+          id="fixtures-upcoming"
+          aria-label="Upcoming fixtures"
+        >
+          <div id="upcoming-list"></div>
+        </section>
+        <section
+          class="tab-panel"
+          id="fixtures-live"
+          aria-label="Live matches"
+          hidden
+        >
+          <div id="live-list"></div>
+          <p class="table-note">
+            A fixture marked live is not necessarily broadcasting. Open the live
+            page for available streams.
+          </p>
+          <a class="text-link" href="live.html">Go to the live page ↗</a>
+        </section>
+        <section
+          class="tab-panel"
+          id="fixtures-results"
+          aria-label="Match results"
+          hidden
+        >
+          <div id="completed-list"></div>
+        </section>
+        <section
+          class="tab-panel"
+          id="fixtures-bookings"
+          aria-label="My bookings"
+          hidden
+        >
+          <div class="notice" style="margin-bottom: 24px">
+            A booking records your team’s plan. Confirming it here does not
+            reserve a venue; arrange court access with the venue directly.
+          </div>
+          <div id="bookings-list"></div>
+        </section>
+      </div>
+    </main>
+    <footer class="footer"></footer>
+    <dialog id="book-modal" aria-labelledby="book-modal-title">
+      <div class="modal-header">
+        <h2 id="book-modal-title">Put it on the calendar.</h2>
+        <button class="modal-close" data-close aria-label="Close booking form">
+          <span aria-hidden="true">✕</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="book-form">
+          <div class="form-group">
+            <label for="booking-team"
+              >Your team <span class="required">*</span></label
+            ><select
+              id="booking-team"
+              name="teamId"
+              class="form-control"
+              required
+            >
+              <option value="">Select your team</option></select
+            ><small class="form-hint"
+              >Only teams you captain or belong to are listed.
+              <a href="register.html?type=team">Register a team</a>.</small
+            >
+          </div>
+          <div class="form-group">
+            <label for="booking-type">Session type</label
+            ><select id="booking-type" name="type" class="form-control">
+              <option value="match">Match against another team</option>
+              <option value="practice">Practice / scrimmage</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="booking-opponent"
+              >Opponent <span class="muted">(optional)</span></label
+            ><input
+              id="booking-opponent"
+              name="opponent"
+              class="form-control"
+              maxlength="80"
+              placeholder="Leave blank for an open challenge"
+            /><small class="form-hint"
+              >A named opponent adds the match to upcoming fixtures.</small
+            >
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="booking-date"
+                >Date <span class="required">*</span></label
+              ><input
+                id="booking-date"
+                type="date"
+                name="date"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="booking-time"
+                >Time (CAT) <span class="required">*</span></label
+              ><input
+                id="booking-time"
+                type="time"
+                name="time"
+                class="form-control"
+                required
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="booking-venue"
+              >Venue <span class="required">*</span></label
+            ><select
+              id="booking-venue"
+              name="venue"
+              class="form-control"
+              required
+            >
+              <option value="">Select a venue</option>
+              <option>Blantyre Sports Complex</option>
+              <option>Lilongwe Civic Centre</option>
+              <option>Mzuzu Court Arena</option>
+              <option>Zomba Youth Field</option>
+              <option>Capital Volleyball Hall</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="booking-notes"
+              >Notes <span class="muted">(optional)</span></label
+            ><textarea
+              id="booking-notes"
+              name="notes"
+              class="form-control"
+              maxlength="1000"
+              placeholder="Arrival time, equipment, or anything your team should know"
+            ></textarea>
+          </div>
+          <div class="form-submit">
+            <button type="submit" class="btn btn-primary btn-block">
+              Save booking request
+            </button>
+            <p class="form-hint">
+              Your request starts as pending. Confirm it in My bookings when
+              your team is ready.
+            </p>
+          </div>
+          <div class="form-status" role="status"></div>
+        </form>
+      </div>
+    </dialog>
+    <script src="js/supabase-sync.js" defer></script>
+    <script src="js/app.js" defer></script>
+    <script src="js/pages/matches.js" defer></script>
+  </body>
 </html>
