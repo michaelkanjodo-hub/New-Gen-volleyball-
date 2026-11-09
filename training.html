@@ -1,293 +1,542 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Training Tips — Gen Z Volleyball Malawi</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230b1020'/%3E%3Ccircle cx='50' cy='50' r='40' fill='%23e8b33a'/%3E%3Cpath d='M35 50 Q50 30 65 50 Q50 70 35 50 Z' fill='%230b1020'/%3E%3C/svg%3E">
-</head>
-<body>
-
-<nav class="nav"></nav>
-
-<div class="ticker"><div class="ticker-track container"></div></div>
-
-<main>
-  <section class="hero">
-    <div class="container">
-      <span class="tag tag-teal">Training Hub</span>
-      <h1>Level Up Your Game</h1>
-      <p>Drills, technique breakdowns, and progress tracking built for under-25 athletes who want to improve every week.</p>
-    </div>
-  </section>
-
-  <!-- SKILL CATEGORIES (clean grid, text-only) -->
-  <section>
-    <div class="container">
-      <div class="grid-3">
-        <a href="#serve" class="card text-center">
-          <h3>Serving</h3>
-          <p class="muted" style="font-size:0.85rem;">Float, jump &amp; top-spin</p>
-        </a>
-        <a href="#spike" class="card text-center">
-          <h3>Spiking</h3>
-          <p class="muted" style="font-size:0.85rem;">Approach, jump &amp; power</p>
-        </a>
-        <a href="#pass" class="card text-center">
-          <h3>Passing</h3>
-          <p class="muted" style="font-size:0.85rem;">Platform &amp; dig technique</p>
-        </a>
-        <a href="#set" class="card text-center">
-          <h3>Setting</h3>
-          <p class="muted" style="font-size:0.85rem;">Hands, footwork &amp; tempo</p>
-        </a>
-        <a href="#block" class="card text-center">
-          <h3>Blocking</h3>
-          <p class="muted" style="font-size:0.85rem;">Timing &amp; positioning</p>
-        </a>
-        <a href="#fitness" class="card text-center">
-          <h3>Fitness</h3>
-          <p class="muted" style="font-size:0.85rem;">Jump, agility &amp; endurance</p>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- DRILLS BY SKILL (tabs + clean drill cards) -->
-  <section>
-    <div class="container">
-      <div class="section-title">
-        <span class="badge">Drills</span>
-        <h2>Skill Breakdown</h2>
-      </div>
-
-      <div class="tabs">
-        <button class="tab active" data-tab="serve">Serve</button>
-        <button class="tab" data-tab="spike">Spike</button>
-        <button class="tab" data-tab="pass">Pass</button>
-        <button class="tab" data-tab="set">Set</button>
-        <button class="tab" data-tab="block">Block</button>
-        <button class="tab" data-tab="fitness">Fitness</button>
-      </div>
-
-      <div class="tab-content active" id="tab-serve">
-        <div class="grid-2">
-          <div class="card">
-            <h3>Float Serve Mastery</h3>
-            <p>A no-spin serve that dances in the air. Strike the ball with a flat, firm palm right in the center. Keep your contact point clean and follow through low.</p>
-            <ul style="margin-top:var(--space-4); padding-left:var(--space-6);">
-              <li>Aim for the back 1m of the court</li>
-              <li>Toss 1.5m in front, slightly to the right</li>
-              <li>Practice 25 serves per session</li>
-            </ul>
-            <div class="alert alert-info" style="margin-top:var(--space-4);">Watch: <em>"Float Serve 101"</em> in the Coach Locker Room</div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Training & skill check-ins — Gen Z Volleyball Malawi</title>
+    <meta
+      name="description"
+      content="Practical volleyball drills, personal skill check-ins, and a community highlight film room."
+    />
+    <meta name="theme-color" content="#214c3b" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" type="image/svg+xml" href="assets/brand/mark.svg" />
+    <link
+      rel="preload"
+      href="assets/fonts/dm-sans-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="assets/fonts/barlow-condensed-600.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body id="top">
+    <nav class="nav"></nav>
+    <main id="main">
+      <header class="page-heading">
+        <div class="container page-heading-row">
+          <div>
+            <div class="eyebrow">The training ground</div>
+            <h1>Good habits. Better volleyball.</h1>
+            <p>
+              Work on one part of your game at a time. Use these drills on
+              court, then check in with your skill tracker.
+            </p>
           </div>
-          <div class="card">
-            <h3>Top-Spin Jump Serve</h3>
-            <p>Generate power from your legs, rotate your torso, and snap your wrist over the top of the ball. The key is a high, slightly forward toss.</p>
-            <ul style="margin-top:var(--space-4); padding-left:var(--space-6);">
-              <li>Drive upward, not forward</li>
-              <li>Contact at full extension</li>
-              <li>Snap wrist to create spin</li>
-            </ul>
+          <div class="button-row">
+            <a class="btn btn-secondary" href="#progress"
+              >My skill check-in ↓</a
+            >
           </div>
         </div>
-      </div>
-
-      <div class="tab-content" id="tab-spike">
-        <div class="grid-2">
-          <div class="card">
-            <h3>3-Step Approach</h3>
-            <p>Right-left-right for right-handers. The last two steps plant and launch. Load your arms like a catapult.</p>
-            <ul style="margin-top:var(--space-4); padding-left:var(--space-6);">
-              <li>Step 1: directional, smaller</li>
-              <li>Step 2: big, plant both feet</li>
-              <li>Step 3: explosive jump + swing</li>
-            </ul>
-          </div>
-          <div class="card">
-            <h3>Arm Swing Mechanics</h3>
-            <p>Bow-and-arrow loading. Lead with the elbow, then snap the wrist over the top. Contact the ball at the highest reachable point in front of you.</p>
+      </header>
+      <section class="section">
+        <div class="container drill-layout">
+          <nav class="skill-index" aria-label="Training skills">
+            <div class="eyebrow" style="margin-bottom: 16px">
+              Choose a skill
+            </div>
+            <div class="tabs" data-tabs="skills">
+              <button class="tab" data-tab="drill-serve" aria-selected="true">
+                01 &nbsp; Serving</button
+              ><button class="tab" data-tab="drill-spike">
+                02 &nbsp; Spiking</button
+              ><button class="tab" data-tab="drill-pass">
+                03 &nbsp; Passing</button
+              ><button class="tab" data-tab="drill-set">
+                04 &nbsp; Setting</button
+              ><button class="tab" data-tab="drill-block">
+                05 &nbsp; Blocking</button
+              ><button class="tab" data-tab="drill-fitness">
+                06 &nbsp; Fitness
+              </button>
+            </div>
+          </nav>
+          <div>
+            <section class="tab-panel" id="drill-serve">
+              <div class="drill-panel-heading">
+                <h2>Start the rally on your terms.</h2>
+                <p>
+                  A repeatable toss and a clean contact matter more than a hard
+                  swing. Build accuracy before power.
+                </p>
+              </div>
+              <article class="drill">
+                <span class="drill-number">01</span>
+                <div>
+                  <h3>The controlled float serve</h3>
+                  <p>
+                    Stand balanced behind the baseline. Toss just in front of
+                    your hitting shoulder and meet the middle of the ball with a
+                    firm, flat hand. A clean, spin-free contact creates the
+                    float.
+                  </p>
+                  <ol>
+                    <li>
+                      Serve to a target in the back metre of the opposite court.
+                    </li>
+                    <li>
+                      Keep the toss at a consistent height, slightly in front.
+                    </li>
+                    <li>Finish with your weight moving toward the target.</li>
+                  </ol>
+                  <span class="drill-target"
+                    >Practice target · 3 sets of 10 serves, recording hits on
+                    target</span
+                  >
+                </div>
+              </article>
+              <article class="drill">
+                <span class="drill-number">02</span>
+                <div>
+                  <h3>Build the jump-serve sequence</h3>
+                  <p>
+                    Learn the toss, approach, and contact separately before
+                    combining them. Contact high and in front, with your wrist
+                    moving over the ball to create topspin.
+                  </p>
+                  <ol>
+                    <li>Practise a low, controlled toss without a serve.</li>
+                    <li>
+                      Add your approach and catch the ball at contact height.
+                    </li>
+                    <li>
+                      Serve at reduced power, then increase effort as the toss
+                      becomes consistent.
+                    </li>
+                  </ol>
+                  <span class="drill-target"
+                    >Coach check · Ask for feedback on your toss and
+                    landing</span
+                  >
+                </div>
+              </article>
+            </section>
+            <section class="tab-panel" id="drill-spike" hidden>
+              <div class="drill-panel-heading">
+                <h2>Find your approach.</h2>
+                <p>
+                  Good attacking starts with your feet. Learn the rhythm slowly,
+                  then add height and speed.
+                </p>
+              </div>
+              <article class="drill">
+                <span class="drill-number">01</span>
+                <div>
+                  <h3>The three-step approach</h3>
+                  <p>
+                    For a right-handed attacker, the usual three-step rhythm is
+                    left–right–left. The final two steps arrive quickly to help
+                    transfer forward movement into a controlled jump. Reverse
+                    the footwork if you are left-handed.
+                  </p>
+                  <ol>
+                    <li>Start with a directional left step.</li>
+                    <li>Take a longer right step and bring your arms back.</li>
+                    <li>
+                      Close with the left foot, swing your arms up, and jump.
+                    </li>
+                  </ol>
+                  <span class="drill-target"
+                    >Practice target · 10 slow approaches without a ball</span
+                  >
+                </div>
+              </article>
+              <article class="drill">
+                <span class="drill-number">02</span>
+                <div>
+                  <h3>A clean arm swing</h3>
+                  <p>
+                    Keep your non-hitting hand on the ball’s line. Rotate
+                    through your trunk, reach high, and contact in front of your
+                    hitting shoulder. Land softly on both feet with your knees
+                    aligned.
+                  </p>
+                  <ul>
+                    <li>Start with controlled standing hits against a wall.</li>
+                    <li>Progress to a coach-fed ball over the net.</li>
+                    <li>Aim for placement before adding power.</li>
+                  </ul>
+                  <span class="drill-target"
+                    >Coach check · Stop if shoulder or knee pain develops</span
+                  >
+                </div>
+              </article>
+            </section>
+            <section class="tab-panel" id="drill-pass" hidden>
+              <div class="drill-panel-heading">
+                <h2>Make the first contact count.</h2>
+                <p>
+                  Move your feet early and let a steady platform do the work.
+                </p>
+              </div>
+              <article class="drill">
+                <span class="drill-number">01</span>
+                <div>
+                  <h3>A reliable forearm platform</h3>
+                  <p>
+                    Bring your hands together with thumbs parallel and elbows
+                    extended. Keep the forearms level, bend your knees, and
+                    angle the platform toward your setter.
+                  </p>
+                  <ol>
+                    <li>Shuffle into line before the ball arrives.</li>
+                    <li>Contact on the forearms, not the wrists.</li>
+                    <li>
+                      Pass to a stationary target without swinging your arms.
+                    </li>
+                  </ol>
+                  <span class="drill-target"
+                    >Practice target · 3 rounds of 10 controlled partner
+                    passes</span
+                  >
+                </div>
+              </article>
+              <article class="drill">
+                <span class="drill-number">02</span>
+                <div>
+                  <h3>Dig with control</h3>
+                  <p>
+                    Start low and balanced. Read the attacker, move behind the
+                    ball, and aim your first contact high toward the middle of
+                    the court rather than trying to win the point immediately.
+                  </p>
+                  <ul>
+                    <li>Have a partner send balls to your left and right.</li>
+                    <li>Reset to a balanced position after every dig.</li>
+                    <li>
+                      Keep the ball off the net so your setter can use it.
+                    </li>
+                  </ul>
+                  <span class="drill-target"
+                    >Practice target · 5 controlled digs to the setter’s
+                    area</span
+                  >
+                </div>
+              </article>
+            </section>
+            <section class="tab-panel" id="drill-set" hidden>
+              <div class="drill-panel-heading">
+                <h2>Give your attackers a chance.</h2>
+                <p>
+                  Footwork, balance, and soft hands turn a pass into a hittable
+                  set.
+                </p>
+              </div>
+              <article class="drill">
+                <span class="drill-number">01</span>
+                <div>
+                  <h3>Soft hands, clean release</h3>
+                  <p>
+                    Shape your hands above your forehead with fingers spread.
+                    Receive and release with the finger pads, using your legs to
+                    support a smooth, brief contact. Avoid slapping or holding
+                    the ball.
+                  </p>
+                  <ol>
+                    <li>Start with small sets straight above your head.</li>
+                    <li>
+                      Keep your elbows comfortably apart and wrists relaxed.
+                    </li>
+                    <li>Progress to setting a self-tossed ball to a target.</li>
+                  </ol>
+                  <span class="drill-target"
+                    >Practice target · 20 balanced overhead sets</span
+                  >
+                </div>
+              </article>
+              <article class="drill">
+                <span class="drill-number">02</span>
+                <div>
+                  <h3>Get underneath the ball</h3>
+                  <p>
+                    Move quickly from the net, stop with your feet balanced, and
+                    face your target before contact. A consistent body position
+                    makes your sets easier to read and hit.
+                  </p>
+                  <ul>
+                    <li>Use a partner’s pass rather than a perfect toss.</li>
+                    <li>Set to the outside, then reset your feet.</li>
+                    <li>
+                      Ask your attacker whether the ball is consistently
+                      playable.
+                    </li>
+                  </ul>
+                  <span class="drill-target"
+                    >Coach check · Let your coach assess any prolonged
+                    contact</span
+                  >
+                </div>
+              </article>
+            </section>
+            <section class="tab-panel" id="drill-block" hidden>
+              <div class="drill-panel-heading">
+                <h2>Be ready at the net.</h2>
+                <p>
+                  Read the play, move efficiently, and time your jump to the
+                  attacker.
+                </p>
+              </div>
+              <article class="drill">
+                <span class="drill-number">01</span>
+                <div>
+                  <h3>Move, balance, then jump</h3>
+                  <p>
+                    Stay ready with your hands up. Shuffle for short distances
+                    and use a crossover step for longer moves. Brake before
+                    jumping so you travel upward rather than into the net.
+                  </p>
+                  <ol>
+                    <li>Practise two shuffle steps and a balanced stop.</li>
+                    <li>
+                      Add a vertical jump with hands reaching above the net.
+                    </li>
+                    <li>
+                      Land under control and return to your ready position.
+                    </li>
+                  </ol>
+                  <span class="drill-target"
+                    >Practice target · 3 sets of 5 controlled block jumps</span
+                  >
+                </div>
+              </article>
+              <article class="drill">
+                <span class="drill-number">02</span>
+                <div>
+                  <h3>Read the setter and attacker</h3>
+                  <p>
+                    Watch the first pass, the setter’s body position, and the
+                    attacker’s approach. React to the actual set rather than
+                    guessing early. Keep your hands firm and reach into the
+                    attacking space when appropriate.
+                  </p>
+                  <ul>
+                    <li>Start with a predictable set and focus on timing.</li>
+                    <li>
+                      Have your coach vary the target once the rhythm is
+                      comfortable.
+                    </li>
+                    <li>Keep a safe distance from the net when landing.</li>
+                  </ul>
+                  <span class="drill-target"
+                    >Coach check · Practise net safety before competitive
+                    blocking</span
+                  >
+                </div>
+              </article>
+            </section>
+            <section class="tab-panel" id="drill-fitness" hidden>
+              <div class="drill-panel-heading">
+                <h2>Build a game that lasts.</h2>
+                <p>
+                  Train movement quality before volume. Rest, technique, and a
+                  sensible progression are part of the work.
+                </p>
+              </div>
+              <article class="drill">
+                <span class="drill-number">01</span>
+                <div>
+                  <h3>Jump and land well</h3>
+                  <p>
+                    Begin with low pogo jumps and controlled countermovement
+                    jumps. Focus on soft landings and knees tracking over toes.
+                    Add volume only when the movement stays controlled.
+                  </p>
+                  <span class="drill-target"
+                    >Starting point · 2 sets of 5 jumps with full recovery</span
+                  >
+                </div>
+              </article>
+              <article class="drill">
+                <span class="drill-number">02</span>
+                <div>
+                  <h3>Court agility</h3>
+                  <p>
+                    Use short shuffles between three court markers. Change
+                    direction under control, keeping your chest up and feet
+                    active. Walk back between repetitions.
+                  </p>
+                  <span class="drill-target"
+                    >Starting point · 5 short repetitions, resting as
+                    needed</span
+                  >
+                </div>
+              </article>
+              <article class="drill">
+                <span class="drill-number">03</span>
+                <div>
+                  <h3>Core and balance</h3>
+                  <p>
+                    Use a comfortable plank variation and a controlled
+                    single-leg balance. Stop each set before your position
+                    breaks down. A coach can help adapt these movements to your
+                    needs.
+                  </p>
+                  <span class="drill-target"
+                    >Starting point · 3 controlled holds on each side</span
+                  >
+                </div>
+              </article>
+              <article class="drill">
+                <span class="drill-number">04</span>
+                <div>
+                  <h3>Match-friendly conditioning</h3>
+                  <p>
+                    Alternate short, purposeful movement with recovery. Use
+                    court shuffles or easy running rather than an all-out sprint
+                    on your first session. Increase the workload gradually.
+                  </p>
+                  <span class="drill-target"
+                    >Starting point · 6 short efforts with comfortable
+                    recovery</span
+                  >
+                </div>
+              </article>
+            </section>
+            <p class="training-note">
+              Warm up first. These are general practice ideas, not individual
+              medical advice. Work with a qualified coach, adjust for your
+              experience, and stop if you feel pain.
+            </p>
           </div>
         </div>
-      </div>
-
-      <div class="tab-content" id="tab-pass">
-        <div class="grid-2">
-          <div class="card">
-            <h3>Forearm Pass (Bump)</h3>
-            <p>Lock your arms straight, thumbs side-by-side, platform flat. Bend your knees, not your arms. Move your feet to the ball, not the other way around.</p>
-            <ul style="margin-top:var(--space-4); padding-left:var(--space-6);">
-              <li>Platform = locked elbows</li>
-              <li>Angle platform to target</li>
-              <li>Absorb the ball, don't bounce it</li>
-            </ul>
+      </section>
+      <section class="section section-white" id="progress">
+        <div class="container">
+          <div class="section-heading">
+            <div>
+              <div class="eyebrow">Your training notebook</div>
+              <h2>A weekly skill check-in.</h2>
+            </div>
+            <span class="small muted">Six skills · 0–100 each</span>
           </div>
-          <div class="card">
-            <h3>Digging Hard-Driven Balls</h3>
-            <p>Get low. Get your chest over your knees. Angle your platform to lift the ball, not absorb it. Aim for 2-3m off the net.</p>
+          <div id="progress-login" class="empty-state">
+            <h3>Make your progress visible.</h3>
+            <p>
+              Sign in to save your ratings and compare check-ins over time. New
+              to the community? Create an account first, then complete player
+              registration.
+            </p>
+            <a
+              class="btn btn-primary"
+              href="login.html?returnTo=training.html%23progress"
+              >Sign in to track progress</a
+            >
+          </div>
+          <form id="progress-form" hidden>
+            <div class="tracker-head">
+              <p class="muted small" id="progress-description">
+                Rate your current confidence, not your potential. An honest
+                starting point makes future progress easier to see.
+              </p>
+              <span class="small muted" id="last-checkin"></span>
+            </div>
+            <div class="skill-fields" id="progress-skills"></div>
+            <div class="tracker-actions">
+              <p>
+                Self-ratings are personal reflections, not verified match
+                statistics.<br />Your check-ins are linked to your account.
+              </p>
+              <button class="btn btn-primary" type="submit">
+                Save this check-in ↗
+              </button>
+            </div>
+            <div class="form-status" role="status"></div>
+            <h3 style="margin-top: 36px; margin-bottom: 18px">
+              Previous check-ins
+            </h3>
+            <div id="progress-history"></div>
+          </form>
+        </div>
+      </section>
+      <section class="section" id="film-room">
+        <div class="container content-aside">
+          <div>
+            <div class="section-heading">
+              <div>
+                <div class="eyebrow">Share the work</div>
+                <h2>Your highlight, your progress.</h2>
+                <p>
+                  Add a YouTube or Vimeo link to a rally, a drill, or a match
+                  you want to share.
+                </p>
+              </div>
+            </div>
+            <div
+              id="training-highlights"
+              class="highlight-grid"
+              style="grid-template-columns: 1fr"
+            ></div>
+          </div>
+          <div>
+            <div class="locker-form">
+              <h3>Add to the film room</h3>
+              <div id="film-login">
+                <p class="muted small">
+                  Sign in to share a video with the community.
+                </p>
+                <a
+                  class="text-link"
+                  href="login.html?returnTo=training.html%23film-room"
+                  >Sign in ↗</a
+                >
+              </div>
+              <form id="highlight-form" hidden>
+                <div class="form-group">
+                  <label for="highlight-title">Clip title</label
+                  ><input
+                    id="highlight-title"
+                    name="title"
+                    class="form-control"
+                    maxlength="100"
+                    required
+                    placeholder="e.g. Our first team practice"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="highlight-url">YouTube or Vimeo link</label
+                  ><input
+                    id="highlight-url"
+                    name="videoUrl"
+                    type="url"
+                    class="form-control"
+                    required
+                    placeholder="https://www.youtube.com/watch?v=…"
+                  /><small class="form-hint"
+                    >Use a public or unlisted video you have permission to
+                    share. Private videos cannot be played.</small
+                  >
+                </div>
+                <button class="btn btn-primary" type="submit">
+                  Share highlight
+                </button>
+                <div class="form-status" role="status"></div>
+              </form>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div class="tab-content" id="tab-set">
-        <div class="grid-2">
-          <div class="card">
-            <h3>Setting Hand Position</h3>
-            <p>Form a "volleyball shape" with your hands — thumbs pointing back, index fingers forming a triangle. Contact with finger pads only, never palms.</p>
-          </div>
-          <div class="card">
-            <h3>Footwork to the Ball</h3>
-            <p>Always move feet first. Get your body behind the ball, balanced. The set should be smooth, like a gentle throw.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="tab-content" id="tab-block">
-        <div class="grid-2">
-          <div class="card">
-            <h3>Block Footwork</h3>
-            <p>Stay light on your toes. Take small, quick shuffle steps. Press over the net, hands angled downward to direct the ball back into the attacker's court.</p>
-          </div>
-          <div class="card">
-            <h3>Reading the Setter</h3>
-            <p>Watch the setter's shoulders and hands. Their body will tell you where the ball is going before it leaves their fingers.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="tab-content" id="tab-fitness">
-        <div class="grid-2">
-          <div class="card">
-            <h3>Plyometric Power</h3>
-            <p>Box jumps, bounds, and depth jumps build explosive vertical leap. 3 sets of 8 reps, twice a week. Rest 60s between sets.</p>
-          </div>
-          <div class="card">
-            <h3>Court Agility</h3>
-            <p>Hexagon drills, ladder drills, and 4-corner shuffles build the foot speed needed for defense. 15 minutes per session, 3x a week.</p>
-          </div>
-          <div class="card">
-            <h3>Core &amp; Stability</h3>
-            <p>Planks, Russian twists, and pallof presses. A strong core transfers power from legs to arms in your spike.</p>
-          </div>
-          <div class="card">
-            <h3>Match Endurance</h3>
-            <p>Interval sprints: 30s sprint, 60s jog, repeat 8x. Mimics the stop-start rhythm of volleyball.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SKILL PROGRESS TRACKER -->
-  <section>
-    <div class="container">
-      <div class="section-title">
-        <span class="badge tag-teal">Progress</span>
-        <h2>My Skill Tracker</h2>
-      </div>
-      <div class="card" id="progress-tracker">
-        <div id="progress-login" class="auth-gate" style="margin:var(--space-6) 0;">
-          <div class="icon" style="font-size:2rem; color:var(--c-text-dim); margin-bottom:var(--space-3);">🔒</div>
-          <h3>Login to track your progress</h3>
-          <p class="muted">Players can log their self-rated skill scores and watch their growth across the season.</p>
-          <a href="login.html" class="btn btn-primary" style="margin-top:var(--space-4);">Login / Register &rarr;</a>
-        </div>
-
-        <div id="progress-body" style="display:none;">
-          <div class="alert alert-info">
-            Season runs January – December. Update your self-rating (0-100) every week to track growth.
-            <button class="btn btn-sm btn-accent" id="save-progress" style="float:right;">Save Progress</button>
-          </div>
-          <div id="progress-skills" class="grid-2" style="margin-top:var(--space-6);"></div>
-          <h3 style="margin-top:var(--space-12);">History</h3>
-          <div class="table-wrap">
-            <table id="progress-history">
-              <thead><tr><th>Date</th><th>Avg Skill</th><th>Top Skill</th><th>Worst Skill</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer class="footer"></footer>
-
-<script src="js/livestream.js"></script>
-<script src="js/supabase-sync.js"></script>
-<script src="js/app.js"></script>
-<script>
-APP.renderTicker();
-
-// Skill tabs
-document.querySelectorAll('.tab[data-tab]').forEach(t => {
-  t.addEventListener('click', () => {
-    document.querySelectorAll('.tab[data-tab]').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
-    t.classList.add('active');
-    document.getElementById('tab-' + t.dataset.tab).classList.add('active');
-  });
-});
-
-// Skill tracker
-const SKILLS = [
-  { k: 'serve', l: 'Serve' },
-  { k: 'spike', l: 'Spike' },
-  { k: 'set', l: 'Set' },
-  { k: 'block', l: 'Block' },
-  { k: 'pass', l: 'Pass' },
-  { k: 'dig', l: 'Dig' }
-];
-document.getElementById('progress-skills').innerHTML = SKILLS.map(s => `
-  <div class="form-group">
-    <label>${s.l}</label>
-    <input type="range" name="skill_${s.k}" min="0" max="100" value="50" class="form-control" style="padding:0; height:32px;">
-    <small class="muted">Self-rating: <span class="skill-val">50</span>/100</small>
-  </div>
-`).join('');
-document.querySelectorAll('#progress-skills input[type=range]').forEach(r => {
-  r.addEventListener('input', e => e.target.nextElementSibling.querySelector('.skill-val').textContent = e.target.value);
-});
-
-document.getElementById('save-progress').addEventListener('click', () => {
-  const stats = {};
-  SKILLS.forEach(s => { stats[s.k] = parseInt(document.querySelector('input[name=skill_' + s.k + ']').value) || 50; });
-  const user = APP.currentUser();
-  if (!user) return APP.toast('Please log in first', 'warning');
-  const now = new Date().toISOString();
-  const avg = Math.round(Object.values(stats).reduce((a, b) => a + b, 0) / Object.keys(stats).length);
-  APP.data.players = APP.data.players.map(p => (p.name === user.name ? { ...p, stats } : p));
-  APP.data.scorePad.history = APP.data.scorePad.history || [];
-  APP.data.scorePad.history.push({ date: now, avg, stats });
-  APP.save();
-  APP.toast('Progress saved!', 'success');
-  renderHistory();
-});
-
-function renderHistory() {
-  const tb = document.querySelector('#progress-history tbody');
-  tb.innerHTML = '';
-  (APP.data.scorePad.history || []).slice().reverse().forEach(h => {
-    const skills = Object.entries(h.stats);
-    const top = skills.reduce((a, b) => (b[1] > a[1] ? b : a));
-    const worst = skills.reduce((a, b) => (b[1] < a[1] ? b : a));
-    tb.innerHTML += `<tr><td>${APP.fmtDate(h.date)}</td><td>${h.avg}</td><td>${top[0]} (${top[1]})</td><td>${worst[0]} (${worst[1]})</td></tr>`;
-  });
-}
-renderHistory();
-
-// Show/hide tracker based on login
-const user = APP.currentUser();
-if (user) {
-  document.getElementById('progress-login').style.display = 'none';
-  document.getElementById('progress-body').style.display = 'block';
-}
-</script>
-</body>
+      </section>
+    </main>
+    <footer class="footer"></footer>
+    <script src="js/supabase-sync.js" defer></script>
+    <script src="js/app.js" defer></script>
+    <script src="js/pages/training.js" defer></script>
+  </body>
 </html>

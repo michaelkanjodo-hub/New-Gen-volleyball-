@@ -1,16 +1,23 @@
 -- ============================================================
--- Gen Z Volleyball Malawi — Supabase Setup
+-- Gen Z Volleyball Malawi — optional public-record sync setup
 -- ============================================================
--- How to use:
--- 1. Create a free project at https://supabase.com
--- 2. Go to SQL Editor → New Query
--- 3. Paste this entire file → Run
--- 4. Go to Settings → API → copy your "Project URL" and "anon public" key
--- 5. Paste both into js/supabase-sync.js (SYNC.config)
--- 6. Refresh the site — cross-device sync is live!
+-- PROTOTYPE, NOT PRODUCTION AUTHORIZATION.
+-- The sync policies below intentionally preserve the existing anonymous demo.
+-- Anyone with the public API key can read/write this table. Do not use it for
+-- real accounts, personal contacts, medical records, or private coaching data.
+-- Review and remove any sensitive legacy rows before a public deployment.
+-- This script does not delete existing data.
+--
+-- 1. Review this entire file with the project owner.
+-- 2. Run it in the existing Supabase project's SQL Editor only if intended.
+-- 3. Open sync-setup.html on the website.
+-- 4. Enter the project URL and PUBLIC anon/publishable key, test, then save.
+--    Never put a service-role or secret key in browser code or browser storage.
+-- 5. Verify connectivity with real project credentials before relying on sync.
 -- ============================================================
 
--- Main sync table (one row per entity: users, players, teams, matches, etc.)
+-- One row per public entity. Separate public_players/public_teams row types
+-- avoid overwriting legacy private player/team rows with sanitized records.
 create table if not exists public.gzvm_sync (
   id bigserial primary key,
   entity_type text not null,
@@ -20,14 +27,13 @@ create table if not exists public.gzvm_sync (
   unique (entity_type, entity_id)
 );
 
--- Index for fast lookups
-create index if not exists gzvm_sync_entity_idx on public.gzvm_sync (entity_type, entity_id);
+create index if not exists gzvm_sync_entity_idx
+  on public.gzvm_sync (entity_type, entity_id);
 
--- Enable Row Level Security (we keep it permissive for the demo)
 alter table public.gzvm_sync enable row level security;
 
--- Public read/write for the anon key (so the site can read+write without login).
--- In a production app, you would scope writes to authenticated users.
+-- PROTOTYPE ONLY: replace with authenticated, owner-scoped policies before
+-- production. Client-side role checks are not a substitute for these policies.
 drop policy if exists "anon read all" on public.gzvm_sync;
 create policy "anon read all"
   on public.gzvm_sync for select
@@ -53,36 +59,61 @@ create policy "anon delete all"
   to anon, authenticated
   using (true);
 
--- Enable realtime
-alter publication supabase_realtime add table public.gzvm_sync;
+-- Add the realtime publication only once, so the script can be rerun safely.
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'gzvm_sync'
+  ) then
+    alter publication supabase_realtime add table public.gzvm_sync;
+  end if;
+end
+$$;
 
 -- ============================================================
--- STORAGE BUCKETS (for profile photos, medical forms, videos)
+-- Storage buckets
+-- Medical documents are PRIVATE. The current registration flow keeps them
+-- on-device and does not upload them. Add authenticated owner-scoped storage
+-- policies only when a real private upload/authorization flow exists.
 -- ============================================================
--- Run these statements too (or create buckets manually in the UI)
-
-insert into storage.buckets (id, name, public)
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values
-  ('profiles', 'profiles', true),
-  ('medical', 'medical', true),
-  ('highlights', 'highlights', true)
-on conflict (id) do nothing;
+  ('profiles', 'profiles', true, null, null),
+  ('medical', 'medical', false, 2097152, array['application/pdf', 'image/jpeg', 'image/png']),
+  ('highlights', 'highlights', true, null, null)
+on conflict (id) do update set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types
+where storage.buckets.id = 'medical';
 
--- Allow public read on these buckets
+-- PROTOTYPE public asset access, deliberately excluding medical documents.
+-- These policies still allow anyone to write public profile/highlight assets.
+-- Scope uploads to authenticated owners before production use.
 drop policy if exists "public read profiles" on storage.objects;
 create policy "public read profiles"
   on storage.objects for select
   to anon, authenticated
-  using (bucket_id in ('profiles', 'medical', 'highlights'));
+  using (bucket_id in ('profiles', 'highlights'));
 
 drop policy if exists "public write profiles" on storage.objects;
 create policy "public write profiles"
   on storage.objects for insert
   to anon, authenticated
-  with check (bucket_id in ('profiles', 'medical', 'highlights'));
+  with check (bucket_id in ('profiles', 'highlights'));
 
 drop policy if exists "public update profiles" on storage.objects;
 create policy "public update profiles"
   on storage.objects for update
   to anon, authenticated
-  using (bucket_id in ('profiles', 'medical', 'highlights'));
+  using (bucket_id in ('profiles', 'highlights'))
+  with check (bucket_id in ('profiles', 'highlights'));
+
+-- Remove legacy medical policies if explicitly present. Existing projects may
+-- have additional custom policies: review ALL policies in the Supabase dashboard.
+drop policy if exists "public read medical" on storage.objects;
+drop policy if exists "public write medical" on storage.objects;
+drop policy if exists "public update medical" on storage.objects;
